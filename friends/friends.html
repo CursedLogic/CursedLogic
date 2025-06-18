@@ -36,7 +36,35 @@
   </head>
   <body>
     <div class="content">
-      <p>TEST</p>
     </div>
+    <script>
+  const imgSrc = "/images/middle-finger-hollow.png";
+
+  function createDrop() {
+    const img = document.createElement("img");
+    img.src = imgSrc;
+    img.style.position = "fixed";
+    img.style.width = "16px";
+    img.style.height = "16px";
+    img.style.left = Math.random() * window.innerWidth + "px";
+    img.style.top = "-20px";
+    img.style.zIndex = "9999";
+    img.style.pointerEvents = "none";
+    img.style.opacity = "0.85";
+    document.body.appendChild(img);
+
+    let y = -20;
+    const fall = setInterval(() => {
+      y += 2;
+      img.style.top = y + "px";
+      if (y > window.innerHeight) {
+        clearInterval(fall);
+        img.remove();
+      }
+    }, 16);
+  }
+
+  setInterval(createDrop, 150); // Lower for more chaos, raise for less
+</script>
   </body>
 </html>
