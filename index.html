@@ -3,121 +3,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CIQ</title>
+    <title>Asked and Answered</title>
     <link rel="icon" type="image/png" href="/images/17109-200.png" />
     <style>
-      nav {
-        background-color: #a39f9f;
-        padding: 15px;
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      .menu {
-        background-color: rgb(34, 190, 13);
-        border: 2px solid #000000;
-        border-radius: 20px;
-        height: 40px;
-        width: 120px;
-        color: #8d2ecc;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-      }
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
         margin: 0;
-        background-image: url(/images/background.png);
-        background-color: #a39f9f;
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        padding: 1px;
-      }
-      .centered-text {
-        max-width: 600px;
-        word-wrap: break-word;
-        width: 90%;
+        height: 100vh;
+        background-color: #f2f2f2;
+        color: #222;
+        padding: 20px;
         text-align: center;
-        padding: 10px;
-        font-size: 1.2rem; /* Increase the text size for better readability on mobile */
       }
 
-      /* Media Query for smaller screens (mobile devices) */
+      .content {
+        max-width: 600px;
+        width: 90%;
+        font-size: 1.2rem;
+        line-height: 1.6;
+      }
+
+      button {
+        margin-top: 30px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border: none;
+        background-color: #333;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      button:hover {
+        background-color: #555;
+      }
+
       @media (max-width: 768px) {
-        body {
-          padding: 10px; /* Add some padding for mobile */
-        }
-        .menu {
-          width: 100%; /* Make the buttons take up full width on small screens */
-          margin: 10px 0;
-        }
-        .centered-text {
-          font-size: 1rem; /* Adjust font size for smaller screens */
-          padding: 5px;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .menu {
-          font-size: 0.9rem; /* Smaller font for buttons on very small screens */
+        .content {
+          font-size: 1rem;
         }
       }
     </style>
   </head>
   <body>
-    <p style="font-weight: bold; font-size: larger">
-      Why am I so <a href="/pages/Cursed.html">quiet?</a>
-    </p>
+    <div class="content">
+      <p><strong>You asked why I'm quiet.</strong></p>
 
-    <!-- Paragraphs -->
-    <p class="centered-text">
-      Why are you so loud? <br />
-      Real G's move in silence, like lasagna <br />
-      I'm introverted, how much more do you need?
-    </p>
+      <p>
+        I speak when I have something to say. <br />
+        Not before. Not for show.
+      </p>
 
-    <p class="centered-text">Needy I see...</p>
+      <p>
+        I keep to myself. That’s how I work. That’s how I live. <br />
+        It’s not a phase, and it’s not up for review.
+      </p>
 
-    <p class="centered-text">
-      I don't have enough of an opinion formed about you, <br />
-      to even spark a desire to talk with you. <br />
-      What's your humor level? What kind of hobbies do you have? <br />
-      Will you get offended easily? <br />
-      If the answer is "yes" to being offended easily, <br />
-      that's the reason I don't talk with you. <br />
-      These are all things to consider before even wanting to talk with you,
-      <br />
-      otherwise it's just small talk which I hate. <br />
-      "What's up?" The fucking ceiling <br />
-      "How are you?" I'm fine like every other time anyone asks <br />
-      Political? I love guns. <br />
-      Religious? No thanks <br />
-      Sports? No thanks <br />
-      Movies? No thanks <br />
-      Music? Louder and darker than you'd think <br />
-      Video Games? On PC, and no you probably don't know the games I play<br />
-      Red Dead Redemption? no, League of Legends? no, Competitive shooters? no,
-      MMO's? no, and RPG's? no.
-    </p>
+      <p>
+        There’s no performance here. No punchline coming. <br />
+        This isn’t a bit.
+      </p>
 
-    <p class="centered-text">
-      I don't want to learn your life story and hear how hard you have it. <br />
-      I don't want to compete, I don't have anything to prove to you <br />
-      I don't even care about your opinion.<br />
-      Are we working together? I'm professional enough to work with you, <br />
-      but that's it. If you have a work question, ask.
-    </p>
+      <p>
+        I keep my circle small on purpose. <br />
+        But I’m not closed off. <br />
+        If I seem quiet, I’m just waiting to see if it’s worth opening up. <br />
+        For the right people, I’m not quiet at all.
+      </p>
 
-    <nav>
-      <button class="menu" onclick="location.href='/pages/Fancy Cursed.html'">
-        Still don't get it?
-      </button>
-    </nav>
+      <p>
+        You asked. This is the answer. <br />
+        It doesn’t need more.
+      </p>
+
+      <button onclick="location.href='/'">Understood</button>
+    </div>
   </body>
 </html>
