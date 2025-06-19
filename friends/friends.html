@@ -126,22 +126,29 @@
     if (finger.arcingOut) return;
 
     const rect = finger.el.getBoundingClientRect();
-    const dx = e.clientX - (rect.left + rect.width / 2);
-    const dy = e.clientY - (rect.top + rect.height / 2);
+    const fx = rect.left + rect.width / 2;
+    const fy = rect.top + rect.height / 2;
+
+    const dx = e.clientX - fx;
+    const dy = e.clientY - fy;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     if (distance < 60) {
-      const dodgeAmount = dx > 0 ? -60 : 60;
-      const newX = finger.x + dodgeAmount;
+      // Normalize direction
+      const normX = dx / distance;
+      const normY = dy / distance;
 
-      // Keep it safely within screen limits
-      const clampedX = Math.max(10, Math.min(window.innerWidth - 42, newX));
+      // Move opposite to direction of approach
+      const dodgeStrength = 80;
+      const targetX = finger.x - normX * dodgeStrength;
+      const targetY = finger.y - normY * dodgeStrength;
 
-      // Prevent triggering immediate bounce if too close to edge
-      if (clampedX > 10 && clampedX < window.innerWidth - 42) {
-        finger.x = clampedX;
-        finger.el.style.left = finger.x + "px";
-      }
+      // Clamp to screen
+      finger.x = Math.max(10, Math.min(window.innerWidth - 42, targetX));
+      finger.y = Math.max(10, Math.min(window.innerHeight - 42, targetY));
+
+      finger.el.style.left = finger.x + "px";
+      finger.el.style.top = finger.y + "px";
     }
   });
 });
