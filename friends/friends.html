@@ -91,13 +91,16 @@
 
       // Hit left or right edge? Begin arc-down with reversed vx
       if (finger.x <= 0 || finger.x >= window.innerWidth - 32) {
-        finger.arcingOut = true;
-        finger.vx *= -1.2; // Bounce back harder
-        finger.vy = 1; // Start fresh fall speed
-        finger.el.style.transition = "left 0.1s linear, top 0.1s linear";
-        finger.el.style.transform = "rotate(25deg)";
-        return;
-      }
+  finger.arcingOut = true;
+  finger.vx *= -3; // BIG bounce back
+  finger.vy = 0.5 + Math.random(); // Soft drop start
+  finger.el.style.transition = "left 0.1s ease, top 0.1s ease, transform 0.2s ease";
+  finger.el.style.transform = "rotate(45deg) scale(1.2)";
+  setTimeout(() => {
+    finger.el.style.transform = "rotate(0deg) scale(1)";
+  }, 150);
+  return;
+}
 
       // Normal fall off bottom
       if (finger.y > window.innerHeight) {
