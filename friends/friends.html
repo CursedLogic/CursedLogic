@@ -122,21 +122,29 @@
   }
 
   document.addEventListener("mousemove", (e) => {
-    activeFingers.forEach(finger => {
-      if (finger.arcingOut) return;
+  activeFingers.forEach(finger => {
+    if (finger.arcingOut) return;
 
-      const rect = finger.el.getBoundingClientRect();
-      const dx = e.clientX - (rect.left + rect.width / 2);
-      const dy = e.clientY - (rect.top + rect.height / 2);
-      const distance = Math.sqrt(dx * dx + dy * dy);
+    const rect = finger.el.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + rect.width / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
+    const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < 60) {
-        const dodgeDistance = (dx > 0 ? -80 : 80);
-        finger.x = Math.max(0, Math.min(window.innerWidth - 32, finger.x + dodgeDistance));
+    if (distance < 60) {
+      const dodgeAmount = dx > 0 ? -60 : 60;
+      const newX = finger.x + dodgeAmount;
+
+      // Keep it safely within screen limits
+      const clampedX = Math.max(10, Math.min(window.innerWidth - 42, newX));
+
+      // Prevent triggering immediate bounce if too close to edge
+      if (clampedX > 10 && clampedX < window.innerWidth - 42) {
+        finger.x = clampedX;
         finger.el.style.left = finger.x + "px";
       }
-    });
+    }
   });
+});
 
   setInterval(createDrop, 150);
   requestAnimationFrame(animateFingers);
