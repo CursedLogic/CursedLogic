@@ -94,7 +94,8 @@
       finger.x += finger.vx;
 
       // Bounce off edges and arc out
-      if (finger.x <= 0 || finger.x >= window.innerWidth - 32) {
+      const edgeBuffer = 8; // pixels from edge to trigger bounce
+if (finger.x <= edgeBuffer || finger.x >= window.innerWidth - 32 - edgeBuffer) {
         finger.arcingOut = true;
         const bounceAngle = (Math.random() * 0.6 + 0.6); // 0.6–1.2
         const direction = finger.x <= 0 ? 1 : -1;
