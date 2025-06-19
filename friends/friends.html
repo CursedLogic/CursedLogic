@@ -18,6 +18,7 @@
         color: #e0e0e0;
         padding: 20px;
         text-align: center;
+        overflow: hidden;
       }
 
       .content {
@@ -32,136 +33,122 @@
           font-size: 1rem;
         }
       }
+
+      img.finger {
+        position: fixed;
+        width: 32px;
+        height: 32px;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0.95;
+        transition: transform 0.2s ease;
+      }
     </style>
   </head>
   <body>
-    <div class="content">
-    </div>
-<script>
-  const imgSrc = "/images/middle-finger-hollow.png";
-  const activeFingers = [];
+    <div class="content"></div>
+    <script>
+      const imgSrc = "/images/middle-finger-hollow.png";
+      const activeFingers = [];
+      let mouseX = 0;
+      let mouseY = 0;
 
-  function createDrop() {
-    const img = document.createElement("img");
-    img.src = imgSrc;
-    img.style.position = "fixed";
-    img.style.width = "32px";
-    img.style.height = "32px";
-    img.style.left = Math.random() * (window.innerWidth - 32) + "px";
-    img.style.top = "-40px";
-    img.style.zIndex = "9999";
-    img.style.pointerEvents = "none";
-    img.style.opacity = "0.85";
-    img.style.transition = "left 0.2s ease, top 0.2s ease";
-    document.body.appendChild(img);
+      document.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
 
-    const state = {
-      el: img,
-      x: parseFloat(img.style.left),
-      y: -40,
-      vx: (Math.random() - 0.5) * 1.2,
-      vy: 0.6,
-      arcingOut: false
-    };
+      function createFinger() {
+        const img = document.createElement("img");
+        img.src = imgSrc;
+        img.classList.add("finger");
 
-    activeFingers.push(state);
-  }
+        const x = Math.random() * (window.innerWidth - 32);
+        const y = -32;
+        const vx = 0;
+        const vy = 2;
+        const gravity = 0.2;
 
-  function animateFingers() {
-    activeFingers.forEach((finger, index) => {
-      // Arcing fingers
-      if (finger.arcingOut) {
-        finger.x += finger.vx;
-        finger.vy += finger.gravity || 0.2;
-        finger.y += finger.vy;
+        document.body.appendChild(img);
 
-        finger.el.style.left = finger.x + "px";
-        finger.el.style.top = finger.y + "px";
+        const finger = {
+          el: img,
+          x,
+          y,
+          vx,
+          vy,
+          gravity,
+          arcingOut: false
+        };
 
-        if (
-          finger.y > window.innerHeight + 50 ||
-          finger.x < -100 ||
-          finger.x > window.innerWidth + 100
-        ) {
-          finger.el.remove();
-          activeFingers.splice(index, 1);
-        }
-        return;
+        activeFingers.push(finger);
       }
 
-      // Normal falling
-      finger.y += finger.vy;
-      finger.x += finger.vx;
+      function animateFingers() {
+        activeFingers.forEach((finger, i) => {
+          // Dodge logic
+          const rect = finger.el.getBoundingClientRect();
+          const fx = rect.left + rect.width / 2;
+          const fy = rect.top + rect.height / 2;
+          const dx = mouseX - fx;
+          const dy = mouseY - fy;
+          const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // Bounce off edges and arc out
-      const edgeBuffer = 8;
-if (finger.x <= edgeBuffer || finger.x >= window.innerWidth - 32 - edgeBuffer) {
-  finger.arcingOut = true;
+          if (!finger.arcingOut && distance < 60) {
+            const normX = dx / distance;
+            const normY = dy / distance;
+            const dodgeStrength = 80;
+            const targetX = finger.x - normX * dodgeStrength;
+            const targetY = finger.y - normY * dodgeStrength;
 
-  // Bounce hard inward, up and away
-  const fromLeft = finger.x <= edgeBuffer;
-  const vxMagnitude = 6 + Math.random() * 3; // 6–9 px/frame
-  const arcAngle = (Math.random() * 0.4) + 0.6; // makes bounce feel lifted
+            finger.x = Math.max(16, Math.min(window.innerWidth - 48, targetX));
+            finger.y = Math.max(16, Math.min(window.innerHeight - 48, targetY));
 
-  finger.vx = fromLeft ? vxMagnitude : -vxMagnitude;
-  finger.vy = -6 * arcAngle;
-  finger.gravity = 0.25;
+            finger.el.style.left = finger.x + "px";
+            finger.el.style.top = finger.y + "px";
+          }
 
-  // Visual animation
-  finger.el.style.transition = "transform 0.2s ease";
-  finger.el.style.transform = `rotate(${fromLeft ? 30 : -30}deg) scale(1.2)`;
+          // Gravity movement
+          finger.vy += finger.gravity;
+          finger.x += finger.vx;
+          finger.y += finger.vy;
 
-  return;
-}
+          finger.el.style.left = finger.x + "px";
+          finger.el.style.top = finger.y + "px";
 
-      // Normal cleanup
-      if (finger.y > window.innerHeight) {
-        finger.el.remove();
-        activeFingers.splice(index, 1);
-        return;
+          // Bounce logic
+          const edgeBuffer = 12;
+          const nearLeft = finger.x <= edgeBuffer;
+          const nearRight = finger.x >= window.innerWidth - 32 - edgeBuffer;
+
+          if ((nearLeft || nearRight) && !finger.arcingOut) {
+            finger.arcingOut = true;
+
+            const fromLeft = nearLeft;
+            const vxMagnitude = 8 + Math.random() * 4;
+            const arcAngle = 0.8 + Math.random() * 0.4;
+
+            finger.vx = fromLeft ? vxMagnitude : -vxMagnitude;
+            finger.vy = -6 * arcAngle;
+            finger.gravity = 0.25;
+
+            finger.el.style.transition = "transform 0.2s ease";
+            finger.el.style.transform = `rotate(${fromLeft ? 30 : -30}deg) scale(1.2)`;
+          }
+
+          // Remove if off screen
+          if (finger.y > window.innerHeight + 64) {
+            finger.el.remove();
+            activeFingers.splice(i, 1);
+          }
+        });
+
+        requestAnimationFrame(animateFingers);
       }
 
-      finger.el.style.left = finger.x + "px";
-      finger.el.style.top = finger.y + "px";
-    });
-
-    requestAnimationFrame(animateFingers);
-  }
-
-  document.addEventListener("mousemove", (e) => {
-  activeFingers.forEach(finger => {
-    if (finger.arcingOut) return;
-
-    const rect = finger.el.getBoundingClientRect();
-    const fx = rect.left + rect.width / 2;
-    const fy = rect.top + rect.height / 2;
-
-    const dx = e.clientX - fx;
-    const dy = e.clientY - fy;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (distance < 60) {
-      // Normalize direction
-      const normX = dx / distance;
-      const normY = dy / distance;
-
-      // Move opposite to direction of approach
-      const dodgeStrength = 80;
-      const targetX = finger.x - normX * dodgeStrength;
-      const targetY = finger.y - normY * dodgeStrength;
-
-      // Clamp to screen
-      finger.x = Math.max(10, Math.min(window.innerWidth - 42, targetX));
-      finger.y = Math.max(10, Math.min(window.innerHeight - 42, targetY));
-
-      finger.el.style.left = finger.x + "px";
-      finger.el.style.top = finger.y + "px";
-    }
-  });
-});
-
-  setInterval(createDrop, 150);
-  requestAnimationFrame(animateFingers);
-</script>
+      setInterval(createFinger, 150);
+      requestAnimationFrame(animateFingers);
+    </script>
   </body>
 </html>
+
