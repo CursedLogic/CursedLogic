@@ -37,7 +37,7 @@
   <body>
     <div class="content">
     </div>
-    <script>
+<script>
   const imgSrc = "/images/middle-finger-hollow.png";
   const activeFingers = [];
 
@@ -69,46 +69,45 @@
 
   function animateFingers() {
     activeFingers.forEach((finger, index) => {
-      // Arc fall animation
+      // Arcing fingers
       if (finger.arcingOut) {
         finger.x += finger.vx;
-        finger.vy += 0.2;
+        finger.vy += finger.gravity || 0.2;
         finger.y += finger.vy;
 
         finger.el.style.left = finger.x + "px";
         finger.el.style.top = finger.y + "px";
 
-        if (finger.y > window.innerHeight + 50) {
+        if (
+          finger.y > window.innerHeight + 50 ||
+          finger.x < -100 ||
+          finger.x > window.innerWidth + 100
+        ) {
           finger.el.remove();
           activeFingers.splice(index, 1);
         }
         return;
       }
 
-      // Normal fall
+      // Normal falling
       finger.y += finger.vy;
       finger.x += finger.vx;
 
-  if (finger.arcingOut) {
-  finger.x += finger.vx;
-  finger.vy += finger.gravity ?? 0.2;
-  finger.y += finger.vy;
+      // Bounce off edges and arc out
+      if (finger.x <= 0 || finger.x >= window.innerWidth - 32) {
+        finger.arcingOut = true;
+        const bounceAngle = (Math.random() * 0.6 + 0.6); // 0.6–1.2
+        const direction = finger.x <= 0 ? 1 : -1;
 
-  finger.el.style.left = finger.x + "px";
-  finger.el.style.top = finger.y + "px";
+        finger.vx = direction * (5 + Math.random() * 2); // 5–7 px/frame
+        finger.vy = -6 * bounceAngle;
+        finger.gravity = 0.25;
+        finger.el.style.transition = "none";
+        finger.el.style.transform = `rotate(${direction * 45}deg) scale(1.2)`;
+        return;
+      }
 
-  if (
-    finger.y > window.innerHeight + 50 ||
-    finger.x < -50 ||
-    finger.x > window.innerWidth + 50
-  ) {
-    finger.el.remove();
-    activeFingers.splice(index, 1);
-  }
-  return;
-}
-
-      // Normal fall off bottom
+      // Normal cleanup
       if (finger.y > window.innerHeight) {
         finger.el.remove();
         activeFingers.splice(index, 1);
