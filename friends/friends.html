@@ -89,16 +89,22 @@
       finger.y += finger.vy;
       finger.x += finger.vx;
 
-      // Hit left or right edge? Begin arc-down with reversed vx
-      if (finger.x <= 0 || finger.x >= window.innerWidth - 32) {
-  finger.arcingOut = true;
-  finger.vx *= -3; // BIG bounce back
-  finger.vy = 0.5 + Math.random(); // Soft drop start
-  finger.el.style.transition = "left 0.1s ease, top 0.1s ease, transform 0.2s ease";
-  finger.el.style.transform = "rotate(45deg) scale(1.2)";
-  setTimeout(() => {
-    finger.el.style.transform = "rotate(0deg) scale(1)";
-  }, 150);
+  if (finger.arcingOut) {
+  finger.x += finger.vx;
+  finger.vy += finger.gravity ?? 0.2;
+  finger.y += finger.vy;
+
+  finger.el.style.left = finger.x + "px";
+  finger.el.style.top = finger.y + "px";
+
+  if (
+    finger.y > window.innerHeight + 50 ||
+    finger.x < -50 ||
+    finger.x > window.innerWidth + 50
+  ) {
+    finger.el.remove();
+    activeFingers.splice(index, 1);
+  }
   return;
 }
 
