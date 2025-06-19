@@ -39,7 +39,7 @@
     </div>
     <script>
   const imgSrc = "/images/middle-finger-hollow.png";
-  const activeImages = [];
+  const activeFingers = [];
 
   function createDrop() {
     const img = document.createElement("img");
@@ -47,61 +47,73 @@
     img.style.position = "fixed";
     img.style.width = "32px";
     img.style.height = "32px";
-    img.style.left = Math.random() * window.innerWidth + "px";
+    img.style.left = Math.random() * (window.innerWidth - 32) + "px";
     img.style.top = "-40px";
     img.style.zIndex = "9999";
     img.style.pointerEvents = "none";
     img.style.opacity = "0.85";
-    img.style.transition = "left 0.2s ease";
+    img.style.transition = "transform 0.2s ease";
     document.body.appendChild(img);
 
-    // Initial position and velocity
-    let x = parseFloat(img.style.left);
-    let y = -40;
-    let vx = (Math.random() - 0.5) * 2; // Small horizontal drift
-
-    const update = () => {
-      y += 2;
-      x += vx;
-
-      // Bounce off screen edges
-      if (x <= 0 || x >= window.innerWidth - 32) {
-        vx *= -1;
-        x = Math.max(0, Math.min(window.innerWidth - 32, x));
-      }
-
-      img.style.left = x + "px";
-      img.style.top = y + "px";
-
-      if (y > window.innerHeight) {
-        clearInterval(fall);
-        img.remove();
-        const i = activeImages.indexOf(img);
-        if (i > -1) activeImages.splice(i, 1);
-      }
+    // Track state
+    const state = {
+      el: img,
+      x: parseFloat(img.style.left),
+      y: -40,
+      vx: (Math.random() - 0.5) * 2.5, // Horizontal speed
+      vy: 2,
     };
 
-    const fall = setInterval(update, 16);
-    activeImages.push(img);
+    activeFingers.push(state);
   }
 
-  // Cursor dodge logic (runs on mouse move)
+  function animateFingers() {
+    activeFingers.forEach((finger, index) => {
+      finger.y += finger.vy;
+      finger.x += finger.vx;
+
+      // Bounce off walls
+      if (finger.x <= 0 || finger.x >= window.innerWidth - 32) {
+        finger.vx *= -1;
+        // Add bounce wiggle
+        finger.el.style.transform = "scaleX(-1)";
+        setTimeout(() => {
+          finger.el.style.transform = "scaleX(1)";
+        }, 100);
+      }
+
+      // Remove if off bottom
+      if (finger.y > window.innerHeight) {
+        finger.el.remove();
+        activeFingers.splice(index, 1);
+        return;
+      }
+
+      // Update position
+      finger.el.style.left = finger.x + "px";
+      finger.el.style.top = finger.y + "px";
+    });
+
+    requestAnimationFrame(animateFingers);
+  }
+
+  // Dodge the mouse when near
   document.addEventListener("mousemove", (e) => {
-    activeImages.forEach(img => {
-      const rect = img.getBoundingClientRect();
+    activeFingers.forEach(finger => {
+      const rect = finger.el.getBoundingClientRect();
       const dx = e.clientX - (rect.left + rect.width / 2);
       const dy = e.clientY - (rect.top + rect.height / 2);
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < 60) { // Distance threshold to dodge
-        let newX = parseFloat(img.style.left) + (dx > 0 ? -60 : 60);
-        newX = Math.max(0, Math.min(window.innerWidth - 32, newX));
-        img.style.left = newX + "px";
+      if (distance < 60) {
+        const dodge = (dx > 0 ? -80 : 80);
+        finger.x = Math.max(0, Math.min(window.innerWidth - 32, finger.x + dodge));
       }
     });
   });
 
   setInterval(createDrop, 150);
+  requestAnimationFrame(animateFingers);
 </script>
   </body>
 </html>
