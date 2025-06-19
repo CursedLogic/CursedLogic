@@ -94,19 +94,25 @@
       finger.x += finger.vx;
 
       // Bounce off edges and arc out
-      const edgeBuffer = 8; // pixels from edge to trigger bounce
+      const edgeBuffer = 8;
 if (finger.x <= edgeBuffer || finger.x >= window.innerWidth - 32 - edgeBuffer) {
-        finger.arcingOut = true;
-        const bounceAngle = (Math.random() * 0.6 + 0.6); // 0.6–1.2
-        const direction = finger.x <= 0 ? 1 : -1;
+  finger.arcingOut = true;
 
-        finger.vx = direction * (5 + Math.random() * 2); // 5–7 px/frame
-        finger.vy = -6 * bounceAngle;
-        finger.gravity = 0.25;
-        finger.el.style.transition = "none";
-        finger.el.style.transform = `rotate(${direction * 45}deg) scale(1.2)`;
-        return;
-      }
+  // Bounce hard inward, up and away
+  const fromLeft = finger.x <= edgeBuffer;
+  const vxMagnitude = 6 + Math.random() * 3; // 6–9 px/frame
+  const arcAngle = (Math.random() * 0.4) + 0.6; // makes bounce feel lifted
+
+  finger.vx = fromLeft ? vxMagnitude : -vxMagnitude;
+  finger.vy = -6 * arcAngle;
+  finger.gravity = 0.25;
+
+  // Visual animation
+  finger.el.style.transition = "transform 0.2s ease";
+  finger.el.style.transform = `rotate(${fromLeft ? 30 : -30}deg) scale(1.2)`;
+
+  return;
+}
 
       // Normal cleanup
       if (finger.y > window.innerHeight) {
