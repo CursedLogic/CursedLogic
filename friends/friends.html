@@ -52,16 +52,15 @@
     img.style.zIndex = "9999";
     img.style.pointerEvents = "none";
     img.style.opacity = "0.85";
-    img.style.transition = "left 0.2s ease, top 0.2s ease"; // Smooth dodge
+    img.style.transition = "left 0.2s ease, top 0.2s ease";
     document.body.appendChild(img);
 
-    // Track state
     const state = {
       el: img,
       x: parseFloat(img.style.left),
       y: -40,
-      vx: (Math.random() - 0.5) * 1.2, // horizontal drift
-      vy: 0.6, // fall speed
+      vx: (Math.random() - 0.5) * 1.2,
+      vy: 0.6,
       arcingOut: false
     };
 
@@ -70,41 +69,37 @@
 
   function animateFingers() {
     activeFingers.forEach((finger, index) => {
+      // Arc fall animation
       if (finger.arcingOut) {
-        // Arc movement
         finger.x += finger.vx;
-        finger.vy += 0.2; // Gravity increase
+        finger.vy += 0.2;
         finger.y += finger.vy;
 
         finger.el.style.left = finger.x + "px";
         finger.el.style.top = finger.y + "px";
 
-        if (
-          finger.y > window.innerHeight + 50 ||
-          finger.x < -50 ||
-          finger.x > window.innerWidth + 50
-        ) {
+        if (finger.y > window.innerHeight + 50) {
           finger.el.remove();
           activeFingers.splice(index, 1);
         }
         return;
       }
 
-      // Normal falling
+      // Normal fall
       finger.y += finger.vy;
       finger.x += finger.vx;
 
+      // Hit left or right edge? Begin arc-down with reversed vx
       if (finger.x <= 0 || finger.x >= window.innerWidth - 32) {
-        // Trigger arcing out
         finger.arcingOut = true;
-        finger.vx = (finger.x <= 0 ? -1 : 1) * (Math.random() * 2 + 1); // fling outward
-        finger.vy = 1 + Math.random(); // initial arc velocity
-        finger.el.style.transition = "left 0.1s linear, top 0.1s linear"; // Remove glide
-        finger.el.style.transform = "rotate(45deg)";
+        finger.vx *= -1.2; // Bounce back harder
+        finger.vy = 1; // Start fresh fall speed
+        finger.el.style.transition = "left 0.1s linear, top 0.1s linear";
+        finger.el.style.transform = "rotate(25deg)";
         return;
       }
 
-      // Remove if off bottom
+      // Normal fall off bottom
       if (finger.y > window.innerHeight) {
         finger.el.remove();
         activeFingers.splice(index, 1);
@@ -118,7 +113,6 @@
     requestAnimationFrame(animateFingers);
   }
 
-  // Smooth dodge away from cursor
   document.addEventListener("mousemove", (e) => {
     activeFingers.forEach(finger => {
       if (finger.arcingOut) return;
@@ -131,7 +125,7 @@
       if (distance < 60) {
         const dodgeDistance = (dx > 0 ? -80 : 80);
         finger.x = Math.max(0, Math.min(window.innerWidth - 32, finger.x + dodgeDistance));
-        finger.el.style.left = finger.x + "px"; // transition smooths it out
+        finger.el.style.left = finger.x + "px";
       }
     });
   });
