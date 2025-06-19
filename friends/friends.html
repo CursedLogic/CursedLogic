@@ -52,7 +52,7 @@
     img.style.zIndex = "9999";
     img.style.pointerEvents = "none";
     img.style.opacity = "0.85";
-    img.style.transition = "transform 0.2s ease";
+    img.style.transition = "transform 0.3s ease";
     document.body.appendChild(img);
 
     // Track state
@@ -60,8 +60,9 @@
       el: img,
       x: parseFloat(img.style.left),
       y: -40,
-      vx: (Math.random() - 0.5) * 2.5, // Horizontal speed
-      vy: 2,
+      vx: (Math.random() - 0.5) * 1.2, // Horizontal drift
+      vy: 0.6, // Slower fall
+      arcingOut: false
     };
 
     activeFingers.push(state);
@@ -69,17 +70,30 @@
 
   function animateFingers() {
     activeFingers.forEach((finger, index) => {
+      // If arcing, make it fly upward and out
+      if (finger.arcingOut) {
+        finger.x += finger.vx;
+        finger.y -= 3; // Upward motion
+        finger.el.style.left = finger.x + "px";
+        finger.el.style.top = finger.y + "px";
+
+        if (finger.y < -50 || finger.x < -50 || finger.x > window.innerWidth + 50) {
+          finger.el.remove();
+          activeFingers.splice(index, 1);
+        }
+        return;
+      }
+
+      // Normal falling
       finger.y += finger.vy;
       finger.x += finger.vx;
 
-      // Bounce off walls
+      // Hit edge? Trigger arc out
       if (finger.x <= 0 || finger.x >= window.innerWidth - 32) {
-        finger.vx *= -1;
-        // Add bounce wiggle
-        finger.el.style.transform = "scaleX(-1)";
-        setTimeout(() => {
-          finger.el.style.transform = "scaleX(1)";
-        }, 100);
+        finger.arcingOut = true;
+        finger.vx = (finger.x <= 0 ? 1 : -1) * (Math.random() * 2 + 1); // Fling opposite
+        finger.el.style.transform = "rotate(45deg)";
+        return;
       }
 
       // Remove if off bottom
@@ -89,7 +103,6 @@
         return;
       }
 
-      // Update position
       finger.el.style.left = finger.x + "px";
       finger.el.style.top = finger.y + "px";
     });
@@ -97,9 +110,11 @@
     requestAnimationFrame(animateFingers);
   }
 
-  // Dodge the mouse when near
+  // Mouse dodge
   document.addEventListener("mousemove", (e) => {
     activeFingers.forEach(finger => {
+      if (finger.arcingOut) return; // Don't dodge if escaping
+
       const rect = finger.el.getBoundingClientRect();
       const dx = e.clientX - (rect.left + rect.width / 2);
       const dy = e.clientY - (rect.top + rect.height / 2);
