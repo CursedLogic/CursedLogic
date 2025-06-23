@@ -32,7 +32,10 @@
     const imgSize = 28;
     const columns = Math.floor(canvas.width / imgSize);
     const drops = Array(columns).fill(0);
-    const fingerOffsets = Array(columns).fill(0); // Used for dodging
+
+    // Each column has an offset and velocity
+    const fingerOffsets = Array(columns).fill(0);
+    const fingerVelocities = Array(columns).fill(0);
 
     let pointerX = -1000;
     let pointerY = -1000;
@@ -64,32 +67,42 @@
       ctx.globalAlpha = 0.95;
 
       for (let i = 0; i < drops.length; i++) {
-        let x = i * imgSize + fingerOffsets[i];
-        let y = drops[i] * imgSize;
+        const baseX = i * imgSize;
+        const y = drops[i] * imgSize;
+        let offset = fingerOffsets[i];
+        let velocity = fingerVelocities[i];
 
-        // Avoid pointer
-        const dx = pointerX - x;
+        // Distance to pointer
+        const fx = baseX + offset;
+        const dx = pointerX - fx;
         const dy = pointerY - y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < 60) {
-          const awayX = dx / dist;
-          fingerOffsets[i] -= awayX * 8; // Dodge to the side
-        } else {
-          // Slowly return to column center
-          fingerOffsets[i] *= 0.9;
+          const force = dx / dist; // direction
+          velocity -= force * 1.5; // acceleration
         }
 
-        ctx.drawImage(fingerImg, x, y, imgSize, imgSize);
+        // Apply velocity with drag
+        velocity *= 0.9;
+        offset += velocity;
 
-        // Slow drop
+        // Spring back to center
+        offset -= offset * 0.05;
+
+        fingerOffsets[i] = offset;
+        fingerVelocities[i] = velocity;
+
+        ctx.drawImage(fingerImg, baseX + offset, y, imgSize, imgSize);
+
+        // Drop slowly
         if (Math.random() > 0.96) {
           drops[i]++;
         }
 
+        // Reset drop
         if (y > canvas.height && Math.random() > 0.99) {
           drops[i] = 0;
-          fingerOffsets[i] = 0;
         }
       }
 
@@ -107,3 +120,4 @@
   </script>
 </body>
 </html>
+
