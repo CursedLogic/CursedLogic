@@ -14,6 +14,15 @@
     canvas {
       display: block;
     }
+    img.finger-burst {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      opacity: 0.95;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+    }
   </style>
 </head>
 <body>
@@ -30,32 +39,8 @@
     fingerImg.src = "/images/middle-finger-hollow.png";
 
     const imgSize = 28;
-    let columns = Math.floor(canvas.width / imgSize);
+    const columns = Math.floor(canvas.width / imgSize);
     const drops = Array(columns).fill(0);
-
-    const offsets = Array(columns).fill(0);
-    const velocities = Array(columns).fill(0);
-
-    let pointerX = -9999;
-    let pointerY = -9999;
-
-    // Pointer listeners
-    document.addEventListener("mousemove", (e) => {
-      pointerX = e.clientX;
-      pointerY = e.clientY;
-    });
-
-    document.addEventListener("touchmove", (e) => {
-      if (e.touches.length > 0) {
-        pointerX = e.touches[0].clientX;
-        pointerY = e.touches[0].clientY;
-      }
-    });
-
-    document.addEventListener("touchend", () => {
-      pointerX = -9999;
-      pointerY = -9999;
-    });
 
     function draw() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
@@ -63,41 +48,12 @@
 
       ctx.globalAlpha = 0.95;
 
-      for (let i = 0; i < columns; i++) {
-        const baseX = i * imgSize;
+      for (let i = 0; i < drops.length; i++) {
+        const x = i * imgSize;
         const y = drops[i] * imgSize;
-        let offset = offsets[i];
-        let velocity = velocities[i];
 
-        const fx = baseX + offset;
-        const dx = pointerX - fx;
-        const dy = pointerY - y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        ctx.drawImage(fingerImg, x, y, imgSize, imgSize);
 
-        // Pointer proximity = steering force
-        if (dist < 60) {
-          const steer = (dx / dist) * (1 - dist / 60) * 2;
-          velocity -= steer;
-        }
-
-        // Spring force to return to center
-        velocity -= offset * 0.04;
-
-        // Drag to smooth movement
-        velocity *= 0.85;
-
-        // Cap velocity
-        velocity = Math.max(Math.min(velocity, 10), -10);
-
-        offset += velocity;
-
-        // Store for next frame
-        offsets[i] = offset;
-        velocities[i] = velocity;
-
-        ctx.drawImage(fingerImg, baseX + offset, y, imgSize, imgSize);
-
-        // Drop logic
         if (Math.random() > 0.96) {
           drops[i]++;
         }
@@ -117,14 +73,46 @@
     window.addEventListener("resize", () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+    });
 
-      columns = Math.floor(canvas.width / imgSize);
-      drops.length = columns;
-      offsets.length = columns;
-      velocities.length = columns;
-      drops.fill(0);
-      offsets.fill(0);
-      velocities.fill(0);
+    // Burst effect
+    function spawnFingerBurst(x, y) {
+      for (let i = 0; i < 10; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 30 + Math.random() * 50;
+        const burstX = x + Math.cos(angle) * distance;
+        const burstY = y + Math.sin(angle) * distance;
+        const rotation = Math.random() * 360;
+
+        const img = document.createElement("img");
+        img.src = fingerImg.src;
+        img.classList.add("finger-burst");
+        img.style.left = `${x}px`;
+        img.style.top = `${y}px`;
+        img.style.transform = `translate(0, 0) rotate(0deg)`;
+
+        document.body.appendChild(img);
+
+        requestAnimationFrame(() => {
+          img.style.transform = `translate(${burstX - x}px, ${burstY - y}px) rotate(${rotation}deg)`;
+          img.style.opacity = "0";
+        });
+
+        setTimeout(() => {
+          img.remove();
+        }, 650);
+      }
+    }
+
+    document.addEventListener("click", (e) => {
+      spawnFingerBurst(e.clientX, e.clientY);
+    });
+
+    document.addEventListener("touchstart", (e) => {
+      const touch = e.touches[0];
+      if (touch) {
+        spawnFingerBurst(touch.clientX, touch.clientY);
+      }
     });
   </script>
 </body>
