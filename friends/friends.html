@@ -31,29 +31,32 @@
     const fingerImg = new Image();
     fingerImg.src = "/images/middle-finger-hollow.png";
 
-    const imgSize = 20; // width/height of each "character"
+    const imgSize = 28; // Width and height of the finger image
     const columns = Math.floor(canvas.width / imgSize);
-    const drops = Array(columns).fill(0); // Y position for each column
+    const drops = Array(columns).fill(0);
 
-    // Draw the frame
     function draw() {
-      // Slightly fade canvas
-      ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+      // Darker background fade (slower trail wipe)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.globalAlpha = 0.95;
+      ctx.globalAlpha = 0.9;
+
       for (let i = 0; i < drops.length; i++) {
         const x = i * imgSize;
         const y = drops[i] * imgSize;
 
-        // Draw the finger image
+        // Draw the middle finger image
         ctx.drawImage(fingerImg, x, y, imgSize, imgSize);
 
-        // Randomly reset drop
-        if (y > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        } else {
+        // Slow drop: only move down every few frames
+        if (Math.random() > 0.96) {
           drops[i]++;
+        }
+
+        // Reset drop to top randomly after passing bottom
+        if (y > canvas.height && Math.random() > 0.99) {
+          drops[i] = 0;
         }
       }
 
@@ -64,7 +67,7 @@
       draw();
     };
 
-    // Update canvas size on resize
+    // Resize support
     window.addEventListener("resize", () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -72,5 +75,3 @@
   </script>
 </body>
 </html>
-
-
