@@ -30,23 +30,21 @@
     fingerImg.src = "/images/middle-finger-hollow.png";
 
     const imgSize = 28;
-    const columns = Math.floor(canvas.width / imgSize);
+    let columns = Math.floor(canvas.width / imgSize);
     const drops = Array(columns).fill(0);
 
-    // Each column has an offset and velocity
-    const fingerOffsets = Array(columns).fill(0);
-    const fingerVelocities = Array(columns).fill(0);
+    const offsets = Array(columns).fill(0);
+    const velocities = Array(columns).fill(0);
 
-    let pointerX = -1000;
-    let pointerY = -1000;
+    let pointerX = -9999;
+    let pointerY = -9999;
 
-    // Track mouse
+    // Pointer listeners
     document.addEventListener("mousemove", (e) => {
       pointerX = e.clientX;
       pointerY = e.clientY;
     });
 
-    // Track touch
     document.addEventListener("touchmove", (e) => {
       if (e.touches.length > 0) {
         pointerX = e.touches[0].clientX;
@@ -54,10 +52,9 @@
       }
     });
 
-    // Reset pointer when finger lifted
     document.addEventListener("touchend", () => {
-      pointerX = -1000;
-      pointerY = -1000;
+      pointerX = -9999;
+      pointerY = -9999;
     });
 
     function draw() {
@@ -66,41 +63,45 @@
 
       ctx.globalAlpha = 0.95;
 
-      for (let i = 0; i < drops.length; i++) {
+      for (let i = 0; i < columns; i++) {
         const baseX = i * imgSize;
         const y = drops[i] * imgSize;
-        let offset = fingerOffsets[i];
-        let velocity = fingerVelocities[i];
+        let offset = offsets[i];
+        let velocity = velocities[i];
 
-        // Distance to pointer
         const fx = baseX + offset;
         const dx = pointerX - fx;
         const dy = pointerY - y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
+        // Pointer proximity = steering force
         if (dist < 60) {
-          const force = dx / dist; // direction
-          velocity -= force * 1.5; // acceleration
+          const steer = (dx / dist) * (1 - dist / 60) * 2;
+          velocity -= steer;
         }
 
-        // Apply velocity with drag
-        velocity *= 0.9;
+        // Spring force to return to center
+        velocity -= offset * 0.04;
+
+        // Drag to smooth movement
+        velocity *= 0.85;
+
+        // Cap velocity
+        velocity = Math.max(Math.min(velocity, 10), -10);
+
         offset += velocity;
 
-        // Spring back to center
-        offset -= offset * 0.05;
-
-        fingerOffsets[i] = offset;
-        fingerVelocities[i] = velocity;
+        // Store for next frame
+        offsets[i] = offset;
+        velocities[i] = velocity;
 
         ctx.drawImage(fingerImg, baseX + offset, y, imgSize, imgSize);
 
-        // Drop slowly
+        // Drop logic
         if (Math.random() > 0.96) {
           drops[i]++;
         }
 
-        // Reset drop
         if (y > canvas.height && Math.random() > 0.99) {
           drops[i] = 0;
         }
@@ -116,8 +117,17 @@
     window.addEventListener("resize", () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      columns = Math.floor(canvas.width / imgSize);
+      drops.length = columns;
+      offsets.length = columns;
+      velocities.length = columns;
+      drops.fill(0);
+      offsets.fill(0);
+      velocities.fill(0);
     });
   </script>
 </body>
 </html>
+
 
