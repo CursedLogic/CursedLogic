@@ -11,9 +11,12 @@
       background: black;
       overflow: hidden;
     }
+
     canvas {
       display: block;
+      pointer-events: none; /* Makes sure clicks go through */
     }
+
     img.finger-burst {
       position: fixed;
       width: 32px;
@@ -36,7 +39,7 @@
     canvas.height = window.innerHeight;
 
     const fingerImg = new Image();
-    fingerImg.src = "/images/middle-finger-hollow.png";
+    fingerImg.src = "/images/middle-finger-hollow.png"; // <-- Update this if needed
 
     const imgSize = 28;
     const columns = Math.floor(canvas.width / imgSize);
@@ -75,7 +78,7 @@
       canvas.height = window.innerHeight;
     });
 
-    // Burst effect
+    // Burst effect on click/tap
     function spawnFingerBurst(x, y) {
       for (let i = 0; i < 10; i++) {
         const angle = Math.random() * 2 * Math.PI;
@@ -117,5 +120,6 @@
   </script>
 </body>
 </html>
+
 
 
