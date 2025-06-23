@@ -40,7 +40,8 @@
         height: 32px;
         z-index: 9999;
         pointer-events: none;
-        opacity: 0.95;
+        opacity: 0.9;
+        filter: drop-shadow(0 0 4px #00ff55);
         transition: transform 0.2s ease;
       }
     </style>
@@ -59,6 +60,8 @@
       });
 
       function createFinger() {
+        if (activeFingers.length > 60) return; // Matrix-like density control
+
         const img = document.createElement("img");
         img.src = imgSrc;
         img.classList.add("finger");
@@ -66,8 +69,8 @@
         const x = Math.random() * (window.innerWidth - 32);
         const y = -32;
         const vx = 0;
-        const vy = 2;
-        const gravity = 0.2;
+        const vy = 0.2;       // Slower fall like Matrix rain
+        const gravity = 0.05; // Gentle gravity
 
         document.body.appendChild(img);
 
@@ -86,7 +89,6 @@
 
       function animateFingers() {
         activeFingers.forEach((finger, i) => {
-          // Dodge logic
           const rect = finger.el.getBoundingClientRect();
           const fx = rect.left + rect.width / 2;
           const fy = rect.top + rect.height / 2;
@@ -108,7 +110,7 @@
             finger.el.style.top = finger.y + "px";
           }
 
-          // Gravity movement
+          // Apply gravity and movement
           finger.vy += finger.gravity;
           finger.x += finger.vx;
           finger.y += finger.vy;
@@ -116,7 +118,7 @@
           finger.el.style.left = finger.x + "px";
           finger.el.style.top = finger.y + "px";
 
-          // Bounce logic
+          // Bounce off edges
           const edgeBuffer = 12;
           const nearLeft = finger.x <= edgeBuffer;
           const nearRight = finger.x >= window.innerWidth - 32 - edgeBuffer;
@@ -125,12 +127,12 @@
             finger.arcingOut = true;
 
             const fromLeft = nearLeft;
-            const vxMagnitude = 8 + Math.random() * 4;
+            const vxMagnitude = 4 + Math.random() * 2;
             const arcAngle = 0.8 + Math.random() * 0.4;
 
             finger.vx = fromLeft ? vxMagnitude : -vxMagnitude;
-            finger.vy = -6 * arcAngle;
-            finger.gravity = 0.25;
+            finger.vy = -4 * arcAngle;
+            finger.gravity = 0.06;
 
             finger.el.style.transition = "transform 0.2s ease";
             finger.el.style.transform = `rotate(${fromLeft ? 30 : -30}deg) scale(1.2)`;
@@ -146,9 +148,11 @@
         requestAnimationFrame(animateFingers);
       }
 
-      setInterval(createFinger, 400);
+      // Matrix-like spawn interval
+      setInterval(createFinger, 120);
       requestAnimationFrame(animateFingers);
     </script>
   </body>
 </html>
+
 
