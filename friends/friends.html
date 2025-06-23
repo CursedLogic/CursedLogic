@@ -1,158 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Friends</title>
-    <link rel="icon" type="image/png" href="/images/favicon.png" />
-    <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
-        height: 100vh;
-        background-color: #1e1e1e;
-        color: #e0e0e0;
-        padding: 20px;
-        text-align: center;
-        overflow: hidden;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finger Rain</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrixCanvas"></canvas>
 
-      .content {
-        max-width: 600px;
-        width: 90%;
-        font-size: 1.2rem;
-        line-height: 1.6;
-      }
+  <script>
+    const canvas = document.getElementById("matrixCanvas");
+    const ctx = canvas.getContext("2d");
 
-      @media (max-width: 768px) {
-        .content {
-          font-size: 1rem;
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Load the finger image
+    const fingerImg = new Image();
+    fingerImg.src = "/images/middle-finger-hollow.png";
+
+    const imgSize = 20; // width/height of each "character"
+    const columns = Math.floor(canvas.width / imgSize);
+    const drops = Array(columns).fill(0); // Y position for each column
+
+    // Draw the frame
+    function draw() {
+      // Slightly fade canvas
+      ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.globalAlpha = 0.95;
+      for (let i = 0; i < drops.length; i++) {
+        const x = i * imgSize;
+        const y = drops[i] * imgSize;
+
+        // Draw the finger image
+        ctx.drawImage(fingerImg, x, y, imgSize, imgSize);
+
+        // Randomly reset drop
+        if (y > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        } else {
+          drops[i]++;
         }
       }
 
-      img.finger {
-        position: fixed;
-        width: 32px;
-        height: 32px;
-        z-index: 9999;
-        pointer-events: none;
-        opacity: 0.9;
-        filter: drop-shadow(0 0 4px #00ff55);
-        transition: transform 0.2s ease;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="content"></div>
-    <script>
-      const imgSrc = "/images/middle-finger-hollow.png";
-      const activeFingers = [];
-      let mouseX = 0;
-      let mouseY = 0;
+      requestAnimationFrame(draw);
+    }
 
-      document.addEventListener("mousemove", (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-      });
+    fingerImg.onload = () => {
+      draw();
+    };
 
-      function createFinger() {
-        if (activeFingers.length > 60) return; // Matrix-like density control
-
-        const img = document.createElement("img");
-        img.src = imgSrc;
-        img.classList.add("finger");
-
-        const x = Math.random() * (window.innerWidth - 32);
-        const y = -32;
-        const vx = 0;
-        const vy = 0.2;       // Slower fall like Matrix rain
-        const gravity = 0.05; // Gentle gravity
-
-        document.body.appendChild(img);
-
-        const finger = {
-          el: img,
-          x,
-          y,
-          vx,
-          vy,
-          gravity,
-          arcingOut: false
-        };
-
-        activeFingers.push(finger);
-      }
-
-      function animateFingers() {
-        activeFingers.forEach((finger, i) => {
-          const rect = finger.el.getBoundingClientRect();
-          const fx = rect.left + rect.width / 2;
-          const fy = rect.top + rect.height / 2;
-          const dx = mouseX - fx;
-          const dy = mouseY - fy;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (!finger.arcingOut && distance < 60) {
-            const normX = dx / distance;
-            const normY = dy / distance;
-            const dodgeStrength = 80;
-            const targetX = finger.x - normX * dodgeStrength;
-            const targetY = finger.y - normY * dodgeStrength;
-
-            finger.x = Math.max(16, Math.min(window.innerWidth - 48, targetX));
-            finger.y = Math.max(16, Math.min(window.innerHeight - 48, targetY));
-
-            finger.el.style.left = finger.x + "px";
-            finger.el.style.top = finger.y + "px";
-          }
-
-          // Apply gravity and movement
-          finger.vy += finger.gravity;
-          finger.x += finger.vx;
-          finger.y += finger.vy;
-
-          finger.el.style.left = finger.x + "px";
-          finger.el.style.top = finger.y + "px";
-
-          // Bounce off edges
-          const edgeBuffer = 12;
-          const nearLeft = finger.x <= edgeBuffer;
-          const nearRight = finger.x >= window.innerWidth - 32 - edgeBuffer;
-
-          if ((nearLeft || nearRight) && !finger.arcingOut) {
-            finger.arcingOut = true;
-
-            const fromLeft = nearLeft;
-            const vxMagnitude = 4 + Math.random() * 2;
-            const arcAngle = 0.8 + Math.random() * 0.4;
-
-            finger.vx = fromLeft ? vxMagnitude : -vxMagnitude;
-            finger.vy = -4 * arcAngle;
-            finger.gravity = 0.06;
-
-            finger.el.style.transition = "transform 0.2s ease";
-            finger.el.style.transform = `rotate(${fromLeft ? 30 : -30}deg) scale(1.2)`;
-          }
-
-          // Remove if off screen
-          if (finger.y > window.innerHeight + 64) {
-            finger.el.remove();
-            activeFingers.splice(i, 1);
-          }
-        });
-
-        requestAnimationFrame(animateFingers);
-      }
-
-      // Matrix-like spawn interval
-      setInterval(createFinger, 120);
-      requestAnimationFrame(animateFingers);
-    </script>
-  </body>
+    // Update canvas size on resize
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
 </html>
 
 
