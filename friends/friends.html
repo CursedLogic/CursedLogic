@@ -23,40 +23,73 @@
     const canvas = document.getElementById("matrixCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Set canvas size
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Load the finger image
     const fingerImg = new Image();
     fingerImg.src = "/images/middle-finger-hollow.png";
 
-    const imgSize = 28; // Width and height of the finger image
+    const imgSize = 28;
     const columns = Math.floor(canvas.width / imgSize);
     const drops = Array(columns).fill(0);
+    const fingerOffsets = Array(columns).fill(0); // Used for dodging
+
+    let pointerX = -1000;
+    let pointerY = -1000;
+
+    // Track mouse
+    document.addEventListener("mousemove", (e) => {
+      pointerX = e.clientX;
+      pointerY = e.clientY;
+    });
+
+    // Track touch
+    document.addEventListener("touchmove", (e) => {
+      if (e.touches.length > 0) {
+        pointerX = e.touches[0].clientX;
+        pointerY = e.touches[0].clientY;
+      }
+    });
+
+    // Reset pointer when finger lifted
+    document.addEventListener("touchend", () => {
+      pointerX = -1000;
+      pointerY = -1000;
+    });
 
     function draw() {
-      // Darker background fade (slower trail wipe)
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.globalAlpha = 0.9;
+      ctx.globalAlpha = 0.95;
 
       for (let i = 0; i < drops.length; i++) {
-        const x = i * imgSize;
-        const y = drops[i] * imgSize;
+        let x = i * imgSize + fingerOffsets[i];
+        let y = drops[i] * imgSize;
 
-        // Draw the middle finger image
+        // Avoid pointer
+        const dx = pointerX - x;
+        const dy = pointerY - y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 60) {
+          const awayX = dx / dist;
+          fingerOffsets[i] -= awayX * 8; // Dodge to the side
+        } else {
+          // Slowly return to column center
+          fingerOffsets[i] *= 0.9;
+        }
+
         ctx.drawImage(fingerImg, x, y, imgSize, imgSize);
 
-        // Slow drop: only move down every few frames
+        // Slow drop
         if (Math.random() > 0.96) {
           drops[i]++;
         }
 
-        // Reset drop to top randomly after passing bottom
         if (y > canvas.height && Math.random() > 0.99) {
           drops[i] = 0;
+          fingerOffsets[i] = 0;
         }
       }
 
@@ -67,7 +100,6 @@
       draw();
     };
 
-    // Resize support
     window.addEventListener("resize", () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
