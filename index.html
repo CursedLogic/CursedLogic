@@ -131,7 +131,7 @@
     }
   });
 
-  function activate() {
+ function activate() {
   if (document.getElementById("cursed-overlay")) return;
 
   const content = document.querySelector(".content");
@@ -143,6 +143,16 @@
   setTimeout(() => {
     document.body.style.background = "#0a0014"; // deep purple-black
     document.body.style.color = "#c084fc";      // soft purple
+
+    const dot = document.querySelector("span[onclick]");
+    if (dot) {
+      dot.onclick = () => {
+        window.location.href = "/void.html";
+      };
+
+      dot.style.color = "#c084fc";
+      dot.style.cursor = "pointer";
+    }
 
     createOverlay();
   }, 400);
@@ -202,6 +212,15 @@ function typeMessage(container) {
       setTimeout(() => {
         container.textContent += "\n\nLeave.";
       }, 1200);
+
+      setTimeout(() => {
+        container.style.transition = "opacity 0.8s ease";
+        container.style.opacity = "0";
+      }, 3200);
+
+      setTimeout(() => {
+        container.remove();
+      }, 4000);
     }
   }, 45);
 }
