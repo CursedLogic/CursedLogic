@@ -132,60 +132,75 @@
   });
 
   function activate() {
-    if (document.getElementById("cursed-overlay")) return;
+  if (document.getElementById("cursed-overlay")) return;
 
-    // fade out
-    document.body.style.transition = "opacity 0.4s ease";
-    document.body.style.opacity = "0";
+  const content = document.querySelector(".content");
 
-    setTimeout(() => {
-      document.body.style.background = "#000";
-      document.body.style.color = "#ff0000";
-      document.body.style.opacity = "1";
+  // fade out existing content
+  content.style.transition = "opacity 0.4s ease";
+  content.style.opacity = "0";
 
-      glitchFlash();
-      showMessage();
-    }, 400);
-  }
+  setTimeout(() => {
+    document.body.style.background = "#0a0014"; // deep purple-black
+    document.body.style.color = "#c084fc";      // soft purple
 
-  function glitchFlash() {
-    let flashes = 0;
-    const interval = setInterval(() => {
-      document.body.style.filter = flashes % 2 === 0 ? "invert(1)" : "none";
-      flashes++;
-      if (flashes > 6) {
-        clearInterval(interval);
-        document.body.style.filter = "none";
-      }
-    }, 50);
-  }
+    createOverlay();
+  }, 400);
+}
 
-  function showMessage() {
-    const overlay = document.createElement("div");
-    overlay.id = "cursed-overlay";
-    overlay.style.position = "fixed";
-    overlay.style.top = "50%";
-    overlay.style.left = "50%";
-    overlay.style.transform = "translate(-50%, -50%)";
-    overlay.style.fontSize = "2rem";
-    overlay.style.fontWeight = "bold";
-    overlay.style.textAlign = "center";
-    overlay.style.zIndex = "9999";
+function createOverlay() {
+  const overlay = document.createElement("div");
+  overlay.id = "cursed-overlay";
 
-    document.body.appendChild(overlay);
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100vw";
+  overlay.style.height = "100vh";
+  overlay.style.display = "flex";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.style.background = "rgba(10, 0, 20, 0.96)";
+  overlay.style.zIndex = "9999";
+  overlay.style.fontSize = "2rem";
+  overlay.style.fontWeight = "bold";
+  overlay.style.textAlign = "center";
+  overlay.style.padding = "20px";
 
-    const text = "You weren't supposed to find this.";
-    let index = 0;
+  document.body.appendChild(overlay);
 
-    const type = setInterval(() => {
-      overlay.textContent += text[index];
-      index++;
+  glitchFlash();
+  typeMessage(overlay);
+}
 
-      if (index >= text.length) {
-        clearInterval(type);
-      }
-    }, 40);
-  }
+function glitchFlash() {
+  let flashes = 0;
+
+  const interval = setInterval(() => {
+    document.body.style.transform =
+      flashes % 2 === 0 ? "translateX(2px)" : "translateX(-2px)";
+
+    flashes++;
+    if (flashes > 6) {
+      clearInterval(interval);
+      document.body.style.transform = "none";
+    }
+  }, 40);
+}
+
+function typeMessage(container) {
+  const text = "You weren't supposed to find this.";
+  let i = 0;
+
+  const typer = setInterval(() => {
+    container.textContent += text[i];
+    i++;
+
+    if (i >= text.length) {
+      clearInterval(typer);
+    }
+  }, 45);
+}
 })();
 </script>
   </body>
