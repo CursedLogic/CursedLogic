@@ -33,10 +33,25 @@
   transform: scale(1.08);
 }
 
-.top-left { top: 24px; left: 24px; }
-.top-right { top: 24px; right: 24px; }
-.bottom-left { bottom: 24px; left: 24px; }
-.bottom-right { bottom: 24px; right: 24px; }
+.top-left {
+  top: 24px;
+  left: 24px;
+}
+
+.top-right {
+  top: 24px;
+  right: 24px;
+}
+
+.bottom-left {
+  bottom: 24px;
+  left: 24px;
+}
+
+.bottom-right {
+  bottom: 24px;
+  right: 24px;
+}
 
 .center-wrap {
   min-height: 100vh;
@@ -83,6 +98,8 @@
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 .continue:hover {
@@ -92,11 +109,34 @@
 }
 
 @media (max-width: 600px) {
-  .corner-icon { width: 62px; height: 62px; }
-  .top-left, .top-right { top: 16px; }
-  .bottom-left, .bottom-right { bottom: 16px; }
-  .top-left, .bottom-left { left: 16px; }
-  .top-right, .bottom-right { right: 16px; }
+  .corner-icon {
+    width: 62px;
+    height: 62px;
+  }
+
+  .top-left,
+  .top-right {
+    top: 16px;
+  }
+
+  .bottom-left,
+  .bottom-right {
+    bottom: 16px;
+  }
+
+  .top-left,
+  .bottom-left {
+    left: 16px;
+  }
+
+  .top-right,
+  .bottom-right {
+    right: 16px;
+  }
+
+  .panel {
+    padding: 32px 18px;
+  }
 }
 ```
 
@@ -104,10 +144,10 @@
 </head>
 <body>
 
-  <img src="images/eye.svg" class="corner-icon top-left" id="icon1">
-<img src="images/fire.svg" class="corner-icon top-right" id="icon2">
-<img src="images/puzzle.svg" class="corner-icon bottom-left" id="icon3">
-<img src="images/star.svg" class="corner-icon bottom-right" id="icon4">
+  <img src="images/eye.svg" alt="" class="corner-icon top-left" id="icon1">
+  <img src="images/fire.svg" alt="" class="corner-icon top-right" id="icon2">
+  <img src="images/puzzle.svg" alt="" class="corner-icon bottom-left" id="icon3">
+  <img src="images/star.svg" alt="" class="corner-icon bottom-right" id="icon4">
 
   <div class="center-wrap">
     <div class="panel">
@@ -119,7 +159,7 @@
     Some things only appear in the order they expect to be noticed.
   </div>
 
-  <a href="/minigame.html" class="continue">Continue</a>
+  <a href="minigame.html" class="continue">Continue</a>
 </div>
 ```
 
@@ -133,19 +173,16 @@
       document.getElementById("icon4")
     ];
 
-    const glowDuration = 2500;   // how long each icon glows
-    const gapBetween = 1200;     // pause between icons
-    const cyclePause = 20000;    // pause after full cycle (20 seconds)
+    const glowDuration = 2500;
+    const gapBetween = 1200;
+    const cyclePause = 20000;
 
     async function runCycle() {
       while (true) {
         for (let i = 0; i < icons.length; i++) {
           icons[i].classList.add("active");
-
           await new Promise(r => setTimeout(r, glowDuration));
-
           icons[i].classList.remove("active");
-
           await new Promise(r => setTimeout(r, gapBetween));
         }
 
