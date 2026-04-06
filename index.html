@@ -198,6 +198,10 @@ function typeMessage(container) {
 
     if (i >= text.length) {
       clearInterval(typer);
+
+      setTimeout(() => {
+        container.textContent += "\n\nLeave.";
+      }, 1200);
     }
   }, 45);
 }
