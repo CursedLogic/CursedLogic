@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>...</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      pointer-events: none;
+    }
+
+    img.finger-burst {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      opacity: 0.95;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrixCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById("matrixCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const fingerImg = new Image();
+fingerImg.src = "/images/middle-finger-hollow.png";
+
+const imgSize = 28;
+const columns = Math.floor(canvas.width / imgSize);
+const drops = Array(columns).fill(0);
+
+function draw() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < drops.length; i++) {
+    const x = i * imgSize;
+    const y = drops[i] * imgSize;
+
+    ctx.drawImage(fingerImg, x, y, imgSize, imgSize);
+
+    if (Math.random() > 0.96) {
+      drops[i]++;
+    }
+
+    if (y > canvas.height) {
+      drops[i] = 0;
+    }
+  }
+
+  requestAnimationFrame(draw);
+}
+
+fingerImg.onload = () => {
+  draw();
+};
+
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// click burst
+function spawnFingerBurst(x, y) {
+  for (let i = 0; i < 10; i++) {
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = 30 + Math.random() * 50;
+    const burstX = x + Math.cos(angle) * distance;
+    const burstY = y + Math.sin(angle) * distance;
+    const rotation = Math.random() * 360;
+
+    const img = document.createElement("img");
+    img.src = fingerImg.src;
+    img.classList.add("finger-burst");
+    img.style.left = `${x}px`;
+    img.style.top = `${y}px`;
+
+    document.body.appendChild(img);
+
+    requestAnimationFrame(() => {
+      img.style.transform = `translate(${burstX - x}px, ${burstY - y}px) rotate(${rotation}deg)`;
+      img.style.opacity = "0";
+    });
+
+    setTimeout(() => {
+      img.remove();
+    }, 650);
+  }
+}
+
+document.addEventListener("click", (e) => {
+  spawnFingerBurst(e.clientX, e.clientY);
+});
+</script>
+
+</body>
+</html>
