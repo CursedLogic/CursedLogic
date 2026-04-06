@@ -215,59 +215,67 @@
   }
 
   function createOverlay() {
-    const overlay = document.createElement("div");
-    overlay.id = "cursed-overlay";
+  const overlay = document.createElement("div");
+  overlay.id = "cursed-overlay";
 
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100vw";
-    overlay.style.height = "100vh";
-    overlay.style.display = "flex";
-    overlay.style.justifyContent = "center";
-    overlay.style.alignItems = "center";
-    overlay.style.background = "rgba(10, 0, 20, 0.96)";
-    overlay.style.zIndex = "9999";
-    overlay.style.fontSize = "2rem";
-    overlay.style.fontWeight = "bold";
-    overlay.style.textAlign = "center";
-    overlay.style.padding = "20px";
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100vw";
+  overlay.style.height = "100vh";
+  overlay.style.display = "flex";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.style.background = "rgba(10, 0, 20, 0.96)";
+  overlay.style.zIndex = "9999";
 
-    document.body.appendChild(overlay);
-    typeMessage(overlay);
-  }
+  overlay.style.fontSize = "clamp(1.2rem, 5vw, 2rem)";
+  overlay.style.fontWeight = "bold";
+  overlay.style.textAlign = "center";
+  overlay.style.padding = "32px";
+  overlay.style.boxSizing = "border-box";
+  overlay.style.lineHeight = "1.4";
+  overlay.style.wordBreak = "break-word";
+  overlay.style.width = "100%";
+  overlay.style.maxWidth = "90vw";
+  overlay.style.margin = "0 auto";
+  overlay.style.whiteSpace = "pre-line";
+
+  document.body.appendChild(overlay);
+  typeMessage(overlay);
+}
 
   function typeMessage(container) {
-    const understood = localStorage.getItem("understoodClicked") === "true";
-    const text = understood
-      ? "You understood. And still kept going."
-      : "You weren't supposed to find this.";
+  const understood = localStorage.getItem("understoodClicked") === "true";
+  const text = understood
+    ? "You understood. And still kept going."
+    : "You weren't supposed to find this.";
 
-    let i = 0;
+  let i = 0;
 
-    const typer = setInterval(() => {
-      container.textContent += text[i];
-      i++;
+  const typer = setInterval(() => {
+    container.textContent += text[i];
+    i++;
 
-      if (i >= text.length) {
-        clearInterval(typer);
+    if (i >= text.length) {
+      clearInterval(typer);
 
-        setTimeout(() => {
-          container.textContent += "\n\nLeave.";
-        }, 1200);
+      setTimeout(() => {
+        container.textContent += "\n\nLeave.";
+      }, 1200);
 
-        setTimeout(() => {
-          container.style.transition = "opacity 0.8s ease";
-          container.style.opacity = "0";
-        }, 3200);
+      setTimeout(() => {
+        container.style.transition = "opacity 0.8s ease";
+        container.style.opacity = "0";
+      }, 3200);
 
-        setTimeout(() => {
-          container.remove();
-          document.querySelector(".content").style.opacity = "1";
-        }, 4000);
-      }
-    }, 45);
-  }
+      setTimeout(() => {
+        container.remove();
+        document.querySelector(".content").style.opacity = "1";
+      }, 4000);
+    }
+  }, 45);
+}
 })();
 </script>
   </body>
