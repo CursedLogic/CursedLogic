@@ -21,35 +21,22 @@
   position: absolute;
   width: 90px;
   height: 90px;
-  opacity: 0.08;
-  filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.10));
-  transition: opacity 1.2s ease;
+  opacity: 0.18;
+  filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.08));
+  transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease;
   pointer-events: none;
 }
 
-.corner-icon.show {
-  opacity: 0.28;
+.corner-icon.active {
+  opacity: 0.42;
+  filter: drop-shadow(0 0 14px rgba(192, 132, 252, 0.35));
+  transform: scale(1.08);
 }
 
-.top-left {
-  top: 24px;
-  left: 24px;
-}
-
-.top-right {
-  top: 24px;
-  right: 24px;
-}
-
-.bottom-left {
-  bottom: 24px;
-  left: 24px;
-}
-
-.bottom-right {
-  bottom: 24px;
-  right: 24px;
-}
+.top-left { top: 24px; left: 24px; }
+.top-right { top: 24px; right: 24px; }
+.bottom-left { bottom: 24px; left: 24px; }
+.bottom-right { bottom: 24px; right: 24px; }
 
 .center-wrap {
   min-height: 100vh;
@@ -75,7 +62,6 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 20px;
-  text-shadow: 0 0 10px rgba(192, 132, 252, 0.18);
 }
 
 .text {
@@ -97,8 +83,6 @@
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
 }
 
 .continue:hover {
@@ -108,44 +92,22 @@
 }
 
 @media (max-width: 600px) {
-  .corner-icon {
-    width: 62px;
-    height: 62px;
-  }
-
-  .top-left,
-  .top-right {
-    top: 16px;
-  }
-
-  .bottom-left,
-  .bottom-right {
-    bottom: 16px;
-  }
-
-  .top-left,
-  .bottom-left {
-    left: 16px;
-  }
-
-  .top-right,
-  .bottom-right {
-    right: 16px;
-  }
-
-  .panel {
-    padding: 32px 18px;
-  }
+  .corner-icon { width: 62px; height: 62px; }
+  .top-left, .top-right { top: 16px; }
+  .bottom-left, .bottom-right { bottom: 16px; }
+  .top-left, .bottom-left { left: 16px; }
+  .top-right, .bottom-right { right: 16px; }
 }
 ```
 
   </style>
 </head>
 <body>
-  <img src="/images/eye.svg" alt="" class="corner-icon top-left" id="icon1">
-  <img src="/images/fire.svg" alt="" class="corner-icon top-right" id="icon2">
-  <img src="/images/puzzle.svg" alt="" class="corner-icon bottom-left" id="icon3">
-  <img src="/images/star.svg" alt="" class="corner-icon bottom-right" id="icon4">
+
+  <img src="/images/eye.svg" class="corner-icon top-left" id="icon1">
+  <img src="/images/fire.svg" class="corner-icon top-right" id="icon2">
+  <img src="/images/puzzle.svg" class="corner-icon bottom-left" id="icon3">
+  <img src="/images/star.svg" class="corner-icon bottom-right" id="icon4">
 
   <div class="center-wrap">
     <div class="panel">
@@ -171,11 +133,27 @@
       document.getElementById("icon4")
     ];
 
-    icons.forEach((icon, index) => {
-      setTimeout(() => {
-        icon.classList.add("show");
-      }, 500 + index * 700);
-    });
+    const glowDuration = 2500;   // how long each icon glows
+    const gapBetween = 1200;     // pause between icons
+    const cyclePause = 20000;    // pause after full cycle (20 seconds)
+
+    async function runCycle() {
+      while (true) {
+        for (let i = 0; i < icons.length; i++) {
+          icons[i].classList.add("active");
+
+          await new Promise(r => setTimeout(r, glowDuration));
+
+          icons[i].classList.remove("active");
+
+          await new Promise(r => setTimeout(r, gapBetween));
+        }
+
+        await new Promise(r => setTimeout(r, cyclePause));
+      }
+    }
+
+    runCycle();
   </script>
 
 </body>
