@@ -77,68 +77,68 @@
       </p>
 
       <p>
-  You asked<span 
-    onclick="location.href='/friends/friends.html'" 
-    style="cursor: pointer; display: inline-block; width: 14px; text-align: center; color: inherit;"
-  >.</span> This is the answer.<br />
-  It doesn’t need more.
-</p>
-
+        You asked<span
+          onclick="location.href='/friends/friends.html'"
+          style="cursor: pointer; display: inline-block; width: 14px; text-align: center; color: inherit;"
+          >.</span
+        >
+        This is the answer.<br />
+        It doesn’t need more.
+      </p>
 
       <button onclick="
-  this.innerText = 'Great';
-  setTimeout(() => this.style.transition = 'opacity 1s ease', 50);
-  setTimeout(() => this.style.opacity = '0', 1000);
-  setTimeout(() => this.style.visibility = 'hidden', 2100);
-">Understood</button>
-      
+        this.innerText = 'Great';
+        setTimeout(() => this.style.transition = 'opacity 1s ease', 50);
+        setTimeout(() => this.style.opacity = '0', 1000);
+        setTimeout(() => this.style.visibility = 'hidden', 2100);
+      ">
+        Understood
+      </button>
     </div>
-  
-<script>
-(() => {
-  const code = [
-    "ArrowUp","ArrowUp",
-    "ArrowDown","ArrowDown",
-    "ArrowLeft","ArrowRight",
-    "ArrowLeft","ArrowRight",
-    "b","a"
-  ];
 
-  let i = 0;
+    <script>
+      (() => {
+        const code = [
+          "ArrowUp", "ArrowUp",
+          "ArrowDown", "ArrowDown",
+          "ArrowLeft", "ArrowRight",
+          "ArrowLeft", "ArrowRight",
+          "b", "a"
+        ];
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === code[i]) {
-      i++;
-      if (i === code.length) {
-        i = 0;
-        activate();
-      }
-    } else {
-  i = (e.key === code[0]) ? 1 : 0;
-}
-    }
-  });
+        let i = 0;
 
-  function activate() {
-  if (document.getElementById("cursed-msg")) return;
+        document.addEventListener("keydown", (e) => {
+          if (e.key === code[i]) {
+            i++;
+            if (i === code.length) {
+              i = 0;
+              activate();
+            }
+          } else {
+            i = (e.key === code[0]) ? 1 : 0;
+          }
+        });
 
-  document.body.style.background = "#000";
-  document.body.style.color = "#ff0000";
+        function activate() {
+          if (document.getElementById("cursed-msg")) return;
 
-  const msg = document.createElement("div");
-  msg.id = "cursed-msg";
-  msg.innerText = "You weren't supposed to find this.";
-  msg.style.position = "fixed";
-  msg.style.top = "50%";
-  msg.style.left = "50%";
-  msg.style.transform = "translate(-50%, -50%)";
-  msg.style.fontSize = "2rem";
-  msg.style.zIndex = "9999";
+          document.body.style.background = "#000";
+          document.body.style.color = "#ff0000";
 
-  document.body.appendChild(msg);
-}
-})();
-</script>
+          const msg = document.createElement("div");
+          msg.id = "cursed-msg";
+          msg.innerText = "You weren't supposed to find this.";
+          msg.style.position = "fixed";
+          msg.style.top = "50%";
+          msg.style.left = "50%";
+          msg.style.transform = "translate(-50%, -50%)";
+          msg.style.fontSize = "2rem";
+          msg.style.zIndex = "9999";
 
+          document.body.appendChild(msg);
+        }
+      })();
+    </script>
   </body>
 </html>
