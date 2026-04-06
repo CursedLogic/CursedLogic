@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -20,89 +19,87 @@
       text-align: center;
     }
 
-```
-.wrap {
-  max-width: 700px;
-  width: 100%;
-  padding: 40px 24px;
-  background: rgba(10, 0, 20, 0.70);
-  border: 1px solid rgba(192, 132, 252, 0.18);
-  box-shadow: 0 0 22px rgba(192, 132, 252, 0.08);
-}
+    .wrap {
+      max-width: 700px;
+      width: 100%;
+      padding: 40px 24px;
+      background: rgba(10, 0, 20, 0.70);
+      border: 1px solid rgba(192, 132, 252, 0.18);
+      box-shadow: 0 0 22px rgba(192, 132, 252, 0.08);
+      box-sizing: border-box;
+    }
 
-.title {
-  font-size: clamp(1.4rem, 3vw, 2.2rem);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-}
+    .title {
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
 
-.text {
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  line-height: 1.8;
-  opacity: 0.9;
-  margin-bottom: 34px;
-}
+    .text {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      line-height: 1.8;
+      opacity: 0.9;
+      margin-bottom: 34px;
+    }
 
-.icon-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 34px;
-  align-items: center;
-  justify-items: center;
-}
+    .icon-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 34px;
+      align-items: center;
+      justify-items: center;
+    }
 
-.icon {
-  width: 42px;
-  height: 42px;
-  opacity: 0.18;
-  transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease;
-  filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.08));
-}
+    .icon {
+      width: 42px;
+      height: 42px;
+      opacity: 0.18;
+      transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease;
+      filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.08));
+    }
 
-.icon.active {
-  opacity: 0.42;
-  filter: drop-shadow(0 0 14px rgba(192, 132, 252, 0.35));
-  transform: scale(1.08);
-}
+    .icon.active {
+      opacity: 0.42;
+      filter: drop-shadow(0 0 14px rgba(192, 132, 252, 0.35));
+      transform: scale(1.08);
+    }
 
-.continue {
-  display: inline-block;
-  padding: 12px 22px;
-  border: 1px solid rgba(192, 132, 252, 0.5);
-  color: #c084fc;
-  text-decoration: none;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  user-select: none;
-}
+    .continue {
+      display: inline-block;
+      padding: 12px 22px;
+      border: 1px solid rgba(192, 132, 252, 0.5);
+      color: #c084fc;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      user-select: none;
+    }
 
-.continue:hover {
-  background: rgba(192, 132, 252, 0.08);
-  box-shadow: 0 0 14px rgba(192, 132, 252, 0.18);
-  transform: translateY(-1px);
-}
+    .continue:hover {
+      background: rgba(192, 132, 252, 0.08);
+      box-shadow: 0 0 14px rgba(192, 132, 252, 0.18);
+      transform: translateY(-1px);
+    }
 
-@media (max-width: 600px) {
-  .icon {
-    width: 34px;
-    height: 34px;
-  }
+    @media (max-width: 600px) {
+      .icon {
+        width: 34px;
+        height: 34px;
+      }
 
-  .icon-row {
-    gap: 16px;
-  }
+      .icon-row {
+        gap: 16px;
+      }
 
-  .wrap {
-    padding: 32px 18px;
-  }
-}
-```
-
+      .wrap {
+        padding: 32px 18px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -110,22 +107,19 @@
   <div class="wrap">
     <div class="title">Clue</div>
 
-```
-<div class="text">
-  Not everything reveals itself at once.
-  Some things only appear in the order they expect to be noticed.
-</div>
+    <div class="text">
+      Not everything reveals itself at once.
+      Some things only appear in the order they expect to be noticed.
+    </div>
 
-<div class="icon-row">
-  <img src="images/eye.svg" class="icon" id="icon1">
-  <img src="images/fire.svg" class="icon" id="icon2">
-  <img src="images/puzzle.svg" class="icon" id="icon3">
-  <img src="images/star.svg" class="icon" id="icon4">
-</div>
+    <div class="icon-row">
+      <img src="images/eye.svg" class="icon" id="icon1" alt="Eye">
+      <img src="images/fire.svg" class="icon" id="icon2" alt="Fire">
+      <img src="images/puzzle.svg" class="icon" id="icon3" alt="Puzzle">
+      <img src="images/star.svg" class="icon" id="icon4" alt="Star">
+    </div>
 
-<a href="minigame.html" class="continue">Continue</a>
-```
-
+    <a href="minigame.html" class="continue">Continue</a>
   </div>
 
   <script>
@@ -144,15 +138,13 @@
       while (true) {
         for (let i = 0; i < icons.length; i++) {
           icons[i].classList.add("active");
-
-          await new Promise(r => setTimeout(r, glowDuration));
+          await new Promise(resolve => setTimeout(resolve, glowDuration));
 
           icons[i].classList.remove("active");
-
-          await new Promise(r => setTimeout(r, gapBetween));
+          await new Promise(resolve => setTimeout(resolve, gapBetween));
         }
 
-        await new Promise(r => setTimeout(r, cyclePause));
+        await new Promise(resolve => setTimeout(resolve, cyclePause));
       }
     }
 
@@ -161,4 +153,3 @@
 
 </body>
 </html>
-
