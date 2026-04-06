@@ -93,5 +93,52 @@
 ">Understood</button>
       
     </div>
+  
+<script>
+(() => {
+  const code = [
+    "ArrowUp","ArrowUp",
+    "ArrowDown","ArrowDown",
+    "ArrowLeft","ArrowRight",
+    "ArrowLeft","ArrowRight",
+    "b","a"
+  ];
+
+  let i = 0;
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === code[i]) {
+      i++;
+      if (i === code.length) {
+        i = 0;
+        activate();
+      }
+    } else {
+  i = (e.key === code[0]) ? 1 : 0;
+}
+    }
+  });
+
+  function activate() {
+  if (document.getElementById("cursed-msg")) return;
+
+  document.body.style.background = "#000";
+  document.body.style.color = "#ff0000";
+
+  const msg = document.createElement("div");
+  msg.id = "cursed-msg";
+  msg.innerText = "You weren't supposed to find this.";
+  msg.style.position = "fixed";
+  msg.style.top = "50%";
+  msg.style.left = "50%";
+  msg.style.transform = "translate(-50%, -50%)";
+  msg.style.fontSize = "2rem";
+  msg.style.zIndex = "9999";
+
+  document.body.appendChild(msg);
+}
+})();
+</script>
+
   </body>
 </html>
