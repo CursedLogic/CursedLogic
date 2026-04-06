@@ -44,24 +44,29 @@
 .corner.tl {
   top: 0;
   left: 0;
+  transform: rotate(0deg);
+  transform-origin: top left;
 }
 
 .corner.tr {
   top: 0;
   right: 0;
   transform: rotate(90deg);
+  transform-origin: top right;
 }
 
 .corner.bl {
   bottom: 0;
   left: 0;
-  transform: rotate(-90deg);
+  transform: rotate(270deg);
+  transform-origin: bottom left;
 }
 
 .corner.br {
   bottom: 0;
   right: 0;
   transform: rotate(180deg);
+  transform-origin: bottom right;
 }
 
 .inner {
@@ -163,7 +168,7 @@
 
   <div class="icon-row">
     <img src="/images/eye.svg" alt="Eye" class="icon">
-    <img src="/images/flame.svg" alt="Flame" class="icon">
+    <img src="/images/fire.svg" alt="Flame" class="icon">
     <img src="/images/puzzle.svg" alt="Puzzle" class="icon">
     <img src="/images/star.svg" alt="Star" class="icon">
   </div>
