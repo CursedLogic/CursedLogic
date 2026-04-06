@@ -123,33 +123,43 @@
   </div>
 
   <script>
-    const icons = [
-      document.getElementById("icon1"),
-      document.getElementById("icon2"),
-      document.getElementById("icon3"),
-      document.getElementById("icon4")
-    ];
+  const icons = [
+    document.getElementById("icon1"),
+    document.getElementById("icon2"),
+    document.getElementById("icon3"),
+    document.getElementById("icon4")
+  ];
 
-    const glowDuration = 2500;
-    const gapBetween = 1200;
-    const cyclePause = 20000;
+  const glowDuration = 2500;
+  const gapBetween = 1200;
+  const cyclePause = 20000;
+  const initialDelay = 10000; // 10 seconds before first glow
 
-    async function runCycle() {
-      while (true) {
-        for (let i = 0; i < icons.length; i++) {
-          icons[i].classList.add("active");
-          await new Promise(resolve => setTimeout(resolve, glowDuration));
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-          icons[i].classList.remove("active");
-          await new Promise(resolve => setTimeout(resolve, gapBetween));
-        }
+  async function runCycle() {
+    // Initial delay BEFORE anything happens
+    await sleep(initialDelay);
 
-        await new Promise(resolve => setTimeout(resolve, cyclePause));
+    while (true) {
+      for (let i = 0; i < icons.length; i++) {
+        icons[i].classList.add("active");
+
+        await sleep(glowDuration);
+
+        icons[i].classList.remove("active");
+
+        await sleep(gapBetween);
       }
-    }
 
-    runCycle();
-  </script>
+      await sleep(cyclePause);
+    }
+  }
+
+  runCycle();
+</script>
 
 </body>
 </html>
