@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -20,164 +19,272 @@
       text-align: center;
     }
 
-```
-.wrap {
-  max-width: 720px;
-  width: 100%;
-  padding: 40px 24px;
-  background: rgba(10, 0, 20, 0.70);
-  border: 1px solid rgba(192, 132, 252, 0.18);
-  box-shadow: 0 0 22px rgba(192, 132, 252, 0.08);
-  box-sizing: border-box;
-}
+    .wrap {
+      max-width: 720px;
+      width: 100%;
+      padding: 40px 24px;
+      background: rgba(10, 0, 20, 0.70);
+      border: 1px solid rgba(192, 132, 252, 0.18);
+      box-shadow: 0 0 22px rgba(192, 132, 252, 0.08);
+      box-sizing: border-box;
+    }
 
-.title {
-  font-size: clamp(1.4rem, 3vw, 2.2rem);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
+    .title {
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
 
-.text {
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  line-height: 1.8;
-  opacity: 0.9;
-  margin-bottom: 30px;
-}
+    .text {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      line-height: 1.8;
+      opacity: 0.9;
+      margin-bottom: 24px;
+    }
 
-.icon-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 28px;
-  align-items: center;
-  justify-items: center;
-}
+    .sequence {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
 
-.icon-button {
-  background: transparent;
-  border: 1px solid rgba(192, 132, 252, 0.18);
-  padding: 14px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-  opacity: 0.9;
-}
+    .slot {
+      width: 52px;
+      height: 52px;
+      border: 1px solid rgba(192, 132, 252, 0.20);
+      background: rgba(192, 132, 252, 0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
 
-.icon-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 14px rgba(192, 132, 252, 0.16);
-  border-color: rgba(192, 132, 252, 0.45);
-}
+    .slot.filled {
+      border-color: rgba(192, 132, 252, 0.45);
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.12);
+      background: rgba(192, 132, 252, 0.05);
+    }
 
-.icon-button img {
-  width: 42px;
-  height: 42px;
-  display: block;
-  pointer-events: none;
-}
+    .slot img {
+      width: 28px;
+      height: 28px;
+      opacity: 0.9;
+      display: block;
+    }
 
-.icon-button.correct {
-  border-color: rgba(120, 255, 160, 0.65);
-  box-shadow: 0 0 14px rgba(120, 255, 160, 0.18);
-  opacity: 0.75;
-}
+    .icon-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 28px;
+      align-items: center;
+      justify-items: center;
+    }
 
-.icon-button.wrong {
-  border-color: rgba(255, 120, 120, 0.65);
-  box-shadow: 0 0 14px rgba(255, 120, 120, 0.18);
-}
+    .icon-button {
+      background: transparent;
+      border: 1px solid rgba(192, 132, 252, 0.18);
+      padding: 14px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+      opacity: 0.9;
+    }
 
-.status {
-  min-height: 28px;
-  font-size: 1rem;
-  letter-spacing: 0.04em;
-  opacity: 0.9;
-}
+    .icon-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 14px rgba(192, 132, 252, 0.16);
+      border-color: rgba(192, 132, 252, 0.45);
+    }
 
-@media (max-width: 600px) {
-  .wrap {
-    padding: 32px 18px;
-  }
+    .icon-button img {
+      width: 42px;
+      height: 42px;
+      display: block;
+      pointer-events: none;
+    }
 
-  .icon-row {
-    gap: 14px;
-  }
+    .icon-button.selected {
+      border-color: rgba(192, 132, 252, 0.55);
+      box-shadow: 0 0 14px rgba(192, 132, 252, 0.18);
+      background: rgba(192, 132, 252, 0.08);
+      opacity: 0.45;
+    }
 
-  .icon-button {
-    padding: 10px;
-  }
+    .icon-button:disabled {
+      cursor: default;
+    }
 
-  .icon-button img {
-    width: 34px;
-    height: 34px;
-  }
-}
-```
+    .wrap.success {
+      border-color: rgba(120, 255, 160, 0.35);
+      box-shadow: 0 0 24px rgba(120, 255, 160, 0.10);
+    }
 
+    .wrap.failure {
+      border-color: rgba(255, 120, 120, 0.30);
+      box-shadow: 0 0 24px rgba(255, 120, 120, 0.10);
+    }
+
+    .status {
+      min-height: 28px;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      opacity: 0.9;
+    }
+
+    @media (max-width: 600px) {
+      .wrap {
+        padding: 32px 18px;
+      }
+
+      .icon-row {
+        gap: 14px;
+      }
+
+      .icon-button {
+        padding: 10px;
+      }
+
+      .icon-button img {
+        width: 34px;
+        height: 34px;
+      }
+
+      .slot {
+        width: 46px;
+        height: 46px;
+      }
+
+      .slot img {
+        width: 24px;
+        height: 24px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="wrap">
+  <div class="wrap" id="gameWrap">
     <div class="title">Proceed</div>
 
-```
-<div class="text">
-  Some things only open in the order they were shown.
-</div>
+    <div class="text">
+      Some things only open in the order they were shown.
+    </div>
 
-<div class="icon-row">
-  <button class="icon-button" data-symbol="eye">
-    <img src="images/eye.svg" alt="Eye">
-  </button>
+    <div class="sequence" id="sequenceSlots">
+      <div class="slot" id="slot0"></div>
+      <div class="slot" id="slot1"></div>
+      <div class="slot" id="slot2"></div>
+      <div class="slot" id="slot3"></div>
+    </div>
 
-  <button class="icon-button" data-symbol="fire">
-    <img src="images/fire.svg" alt="Fire">
-  </button>
+    <div class="icon-row">
+      <button class="icon-button" data-symbol="puzzle">
+        <img src="images/puzzle.svg" alt="Puzzle">
+      </button>
 
-  <button class="icon-button" data-symbol="puzzle">
-    <img src="images/puzzle.svg" alt="Puzzle">
-  </button>
+      <button class="icon-button" data-symbol="eye">
+        <img src="images/eye.svg" alt="Eye">
+      </button>
 
-  <button class="icon-button" data-symbol="star">
-    <img src="images/star.svg" alt="Star">
-  </button>
-</div>
+      <button class="icon-button" data-symbol="star">
+        <img src="images/star.svg" alt="Star">
+      </button>
 
-<div class="status" id="status"></div>
-```
+      <button class="icon-button" data-symbol="fire">
+        <img src="images/fire.svg" alt="Fire">
+      </button>
+    </div>
 
+    <div class="status" id="status"></div>
   </div>
 
   <script>
     const correctSequence = ["eye", "fire", "puzzle", "star"];
-    let currentStep = 0;
-    let locked = false;
+    const playerSequence = [];
 
     const buttons = document.querySelectorAll(".icon-button");
     const status = document.getElementById("status");
+    const wrap = document.getElementById("gameWrap");
+    const slots = [
+      document.getElementById("slot0"),
+      document.getElementById("slot1"),
+      document.getElementById("slot2"),
+      document.getElementById("slot3")
+    ];
+
+    let locked = false;
+
+    function updateSlots() {
+      slots.forEach((slot, index) => {
+        slot.innerHTML = "";
+        slot.classList.remove("filled");
+
+        if (playerSequence[index]) {
+          const img = document.createElement("img");
+          img.src = `images/${playerSequence[index]}.svg`;
+          img.alt = playerSequence[index];
+          slot.appendChild(img);
+          slot.classList.add("filled");
+        }
+      });
+    }
+
+    function resetAttempt() {
+      playerSequence.length = 0;
+      status.textContent = "";
+      wrap.classList.remove("failure");
+      buttons.forEach(button => {
+        button.classList.remove("selected");
+        button.disabled = false;
+      });
+      updateSlots();
+      locked = false;
+    }
+
+    function handleSuccess() {
+      locked = true;
+      wrap.classList.remove("failure");
+      wrap.classList.add("success");
+      status.textContent = "You got it.";
+    }
+
+    function handleFailure() {
+      locked = true;
+      wrap.classList.remove("success");
+      wrap.classList.add("failure");
+      status.textContent = "Wrong order.";
+
+      setTimeout(() => {
+        resetAttempt();
+      }, 1000);
+    }
 
     buttons.forEach(button => {
       button.addEventListener("click", () => {
         if (locked) return;
+        if (playerSequence.length >= 4) return;
+        if (button.disabled) return;
 
         const chosen = button.dataset.symbol;
-        const expected = correctSequence[currentStep];
+        playerSequence.push(chosen);
 
-        if (chosen === expected) {
-          button.classList.add("correct");
-          currentStep++;
+        button.classList.add("selected");
+        button.disabled = true;
 
-          if (currentStep === correctSequence.length) {
-            locked = true;
-            status.textContent = "You got it.";
+        updateSlots();
+
+        if (playerSequence.length === 4) {
+          const isCorrect = playerSequence.every((value, index) => value === correctSequence[index]);
+
+          if (isCorrect) {
+            handleSuccess();
           } else {
-            status.textContent = "";
+            handleFailure();
           }
-        } else {
-          locked = true;
-          button.classList.add("wrong");
-          status.textContent = "Wrong order.";
         }
       });
     });
