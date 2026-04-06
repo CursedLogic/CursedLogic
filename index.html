@@ -99,30 +99,14 @@
     <script>
 (() => {
   const code = [
-    "ArrowUp", "ArrowUp",
-    "ArrowDown", "ArrowDown",
-    "ArrowLeft", "ArrowRight",
-    "ArrowLeft", "ArrowRight",
-    "b", "a"
+    "ArrowUp","ArrowUp",
+    "ArrowDown","ArrowDown",
+    "ArrowLeft","ArrowRight",
+    "ArrowLeft","ArrowRight",
+    "b","a"
   ];
 
   let i = 0;
-
-  const debug = document.createElement("div");
-  debug.id = "debug-box";
-  debug.style.position = "fixed";
-  debug.style.bottom = "10px";
-  debug.style.right = "10px";
-  debug.style.background = "rgba(0,0,0,0.85)";
-  debug.style.color = "#00ff88";
-  debug.style.padding = "10px 12px";
-  debug.style.fontSize = "14px";
-  debug.style.fontFamily = "monospace";
-  debug.style.border = "1px solid #00ff88";
-  debug.style.borderRadius = "8px";
-  debug.style.zIndex = "99999";
-  debug.textContent = "Debug loaded";
-  document.body.appendChild(debug);
 
   document.addEventListener("keydown", (e) => {
     const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
@@ -131,53 +115,76 @@
       key === "ArrowUp" ||
       key === "ArrowDown" ||
       key === "ArrowLeft" ||
-      key === "ArrowRight" ||
-      key === "b" ||
-      key === "a"
+      key === "ArrowRight"
     ) {
       e.preventDefault();
     }
 
-    debug.textContent = `Key: ${key} | Step: ${i + 1}/${code.length}`;
-
     if (key === code[i]) {
       i++;
-      debug.textContent = `Key: ${key} | Matched: ${i}/${code.length}`;
-
       if (i === code.length) {
         i = 0;
-        debug.textContent = "KONAMI MATCHED";
         activate();
       }
     } else {
       i = key === code[0] ? 1 : 0;
-      debug.textContent = `Key: ${key} | Reset -> ${i}/${code.length}`;
     }
   });
 
   function activate() {
-    alert("Konami code worked");
+    if (document.getElementById("cursed-overlay")) return;
 
-    document.body.style.backgroundColor = "#000";
-    document.body.style.color = "#ff0000";
+    // fade out
+    document.body.style.transition = "opacity 0.4s ease";
+    document.body.style.opacity = "0";
 
-    if (!document.getElementById("cursed-msg")) {
-      const msg = document.createElement("div");
-      msg.id = "cursed-msg";
-      msg.textContent = "You weren't supposed to find this.";
-      msg.style.position = "fixed";
-      msg.style.top = "50%";
-      msg.style.left = "50%";
-      msg.style.transform = "translate(-50%, -50%)";
-      msg.style.fontSize = "2rem";
-      msg.style.fontWeight = "bold";
-      msg.style.zIndex = "9999";
-      msg.style.padding = "20px";
-      msg.style.background = "rgba(0,0,0,0.85)";
-      msg.style.border = "1px solid #ff0000";
-      msg.style.borderRadius = "8px";
-      document.body.appendChild(msg);
-    }
+    setTimeout(() => {
+      document.body.style.background = "#000";
+      document.body.style.color = "#ff0000";
+      document.body.style.opacity = "1";
+
+      glitchFlash();
+      showMessage();
+    }, 400);
+  }
+
+  function glitchFlash() {
+    let flashes = 0;
+    const interval = setInterval(() => {
+      document.body.style.filter = flashes % 2 === 0 ? "invert(1)" : "none";
+      flashes++;
+      if (flashes > 6) {
+        clearInterval(interval);
+        document.body.style.filter = "none";
+      }
+    }, 50);
+  }
+
+  function showMessage() {
+    const overlay = document.createElement("div");
+    overlay.id = "cursed-overlay";
+    overlay.style.position = "fixed";
+    overlay.style.top = "50%";
+    overlay.style.left = "50%";
+    overlay.style.transform = "translate(-50%, -50%)";
+    overlay.style.fontSize = "2rem";
+    overlay.style.fontWeight = "bold";
+    overlay.style.textAlign = "center";
+    overlay.style.zIndex = "9999";
+
+    document.body.appendChild(overlay);
+
+    const text = "You weren't supposed to find this.";
+    let index = 0;
+
+    const type = setInterval(() => {
+      overlay.textContent += text[index];
+      index++;
+
+      if (index >= text.length) {
+        clearInterval(type);
+      }
+    }, 40);
   }
 })();
 </script>
