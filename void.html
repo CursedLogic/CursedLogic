@@ -28,29 +28,29 @@
 </style>
 </head>
 <body>
-  <div class="message">You kept going.</div>
+ <div class="message"></div>
 
 <script>
-  // fade in page first
+  const msg = document.querySelector(".message");
+  const understood = localStorage.getItem("understoodClicked") === "true";
+
   setTimeout(() => {
     document.body.style.opacity = "1";
   }, 100);
 
-  // then reveal message
   setTimeout(() => {
-    document.querySelector(".message").style.opacity = "1";
+    msg.textContent = understood ? "You understood." : "You kept going.";
+    msg.style.opacity = "1";
   }, 900);
 
-  // later change message
   setTimeout(() => {
-  const msg = document.querySelector(".message");
-  msg.style.opacity = "0";
+    msg.style.opacity = "0";
 
-  setTimeout(() => {
-    msg.textContent = "You shouldn't have.";
-    msg.style.opacity = "1";
-  }, 400);
-}, 6000);
+    setTimeout(() => {
+      msg.textContent = understood ? "And you came here anyway." : "You shouldn't have.";
+      msg.style.opacity = "1";
+    }, 400);
+  }, 6000);
 </script>
 </body>
 </html>
