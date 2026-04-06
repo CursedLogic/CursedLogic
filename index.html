@@ -87,13 +87,14 @@
       </p>
 
       <button onclick="
-        this.innerText = 'Great';
-        setTimeout(() => this.style.transition = 'opacity 1s ease', 50);
-        setTimeout(() => this.style.opacity = '0', 1000);
-        setTimeout(() => this.style.visibility = 'hidden', 2100);
-      ">
-        Understood
-      </button>
+  localStorage.setItem('understoodClicked', 'true');
+  this.innerText = 'Great';
+  setTimeout(() => this.style.transition = 'opacity 1s ease', 50);
+  setTimeout(() => this.style.opacity = '0', 1000);
+  setTimeout(() => this.style.visibility = 'hidden', 2100);
+">
+  Understood
+</button>
     </div>
 
     <script>
@@ -199,7 +200,11 @@ function glitchFlash() {
 }
 
 function typeMessage(container) {
-  const text = "You weren't supposed to find this.";
+  const understood = localStorage.getItem("understoodClicked") === "true";
+  const text = understood
+    ? "You understood. And still kept going."
+    : "You weren't supposed to find this.";
+
   let i = 0;
 
   const typer = setInterval(() => {
@@ -223,7 +228,6 @@ function typeMessage(container) {
 
         const content = document.querySelector(".content");
         content.style.opacity = "1";
-
       }, 4000);
     }
   }, 45);
