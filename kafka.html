@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kafka</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0a0014;
+      color: #c084fc;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      padding: 32px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+```
+.wrap {
+  max-width: 800px;
+  padding: 20px 10px;
+  box-sizing: border-box;
+}
+
+.quote {
+  font-size: clamp(1.3rem, 2.8vw, 2rem);
+  line-height: 1.75;
+  margin-bottom: 20px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.author {
+  font-size: 1rem;
+  opacity: 0.75;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+  }
+
+  .quote {
+    font-size: 1.2rem;
+  }
+
+  .author {
+    font-size: 0.9rem;
+  }
+}
+```
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="quote" id="quote"></div>
+    <div class="author">Franz Kafka / Dostoyevsky</div>
+  </div>
+
+  <script>
+    const quotes = [
+      "How about If I sleep a little bit longer and forget all this nonsense, I have spent all my life resisting the desire to end it. I do not speak as I think, I do not think as I should and so it all goes on in helpless darkness. I think we ought to read only the kind of books that wound or stab us, a book must be the axe for the frozen sea within us. A first sign of the beginning of understanding is the wish to die, the meaning of life is that it stops.",
+
+      "I was ashamed when I realized life was a costume party and I attended with my real face. Start with what is right rather than what is acceptable. Don't edit your own soul. Anyone who keeps the ability to see beauty never grows old.",
+
+      "I cannot make you understand, I cannot make anyone understand what is happening inside me cannot even explain it to myself.",
+
+      "People crave intimacy yet fear being truly seen — Kafka. And so they settle for shallow connections calling it love while dying quietly of loneliness — Dostoyevsky.",
+
+      "Isolate as much as you want to become stronger, even if you see that loneliness is an unbearable hell. It is much better than the multiple masks of humans. Because in solitude at least the pain is honest. There are no false smiles, no hidden intentions, just you and the truth you cannot escape. — Dostoyevsky"
+    ];
+
+    const quoteEl = document.getElementById("quote");
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    quoteEl.textContent = quotes[randomIndex];
+  </script>
+
+</body>
+</html>
