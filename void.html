@@ -3,23 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <title>...</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      background: #0a0014;
-      color: #c084fc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: monospace;
-      text-align: center;
-    }
-  </style>
+ <style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #0a0014;
+    color: #c084fc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .message {
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+</style>
 </head>
 <body>
-  <div>
-    <p>You kept going.</p>
-  </div>
+  <div class="message">You kept going.</div>
+
+<script>
+  // fade in page first
+  setTimeout(() => {
+    document.body.style.opacity = "1";
+  }, 100);
+
+  // then reveal message
+  setTimeout(() => {
+    document.querySelector(".message").style.opacity = "1";
+  }, 900);
+
+  // later change message
+  setTimeout(() => {
+  const msg = document.querySelector(".message");
+  msg.style.opacity = "0";
+
+  setTimeout(() => {
+    msg.textContent = "You shouldn't have.";
+    msg.style.opacity = "1";
+  }, 400);
+}, 6000);
+</script>
 </body>
 </html>
