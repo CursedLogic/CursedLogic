@@ -97,48 +97,67 @@
     </div>
 
     <script>
-      (() => {
-        const code = [
-          "ArrowUp", "ArrowUp",
-          "ArrowDown", "ArrowDown",
-          "ArrowLeft", "ArrowRight",
-          "ArrowLeft", "ArrowRight",
-          "b", "a"
-        ];
+(() => {
+  const code = [
+    "ArrowUp", "ArrowUp",
+    "ArrowDown", "ArrowDown",
+    "ArrowLeft", "ArrowRight",
+    "ArrowLeft", "ArrowRight",
+    "b", "a"
+  ];
 
-        let i = 0;
+  let i = 0;
 
-        document.addEventListener("keydown", (e) => {
-          if (e.key === code[i]) {
-            i++;
-            if (i === code.length) {
-              i = 0;
-              activate();
-            }
-          } else {
-            i = (e.key === code[0]) ? 1 : 0;
-          }
-        });
+  document.addEventListener("keydown", (e) => {
+    const tag = document.activeElement?.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA") return;
 
-        function activate() {
-          if (document.getElementById("cursed-msg")) return;
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
 
-          document.body.style.background = "#000";
-          document.body.style.color = "#ff0000";
+    if (
+      key === "ArrowUp" ||
+      key === "ArrowDown" ||
+      key === "ArrowLeft" ||
+      key === "ArrowRight"
+    ) {
+      e.preventDefault();
+    }
 
-          const msg = document.createElement("div");
-          msg.id = "cursed-msg";
-          msg.innerText = "You weren't supposed to find this.";
-          msg.style.position = "fixed";
-          msg.style.top = "50%";
-          msg.style.left = "50%";
-          msg.style.transform = "translate(-50%, -50%)";
-          msg.style.fontSize = "2rem";
-          msg.style.zIndex = "9999";
+    if (key === code[i]) {
+      i++;
+      if (i === code.length) {
+        i = 0;
+        activate();
+      }
+    } else {
+      i = key === code[0] ? 1 : 0;
+    }
+  });
 
-          document.body.appendChild(msg);
-        }
-      })();
-    </script>
+  function activate() {
+    if (document.getElementById("cursed-msg")) return;
+
+    document.body.style.backgroundColor = "#000";
+    document.body.style.color = "#ff0000";
+
+    const msg = document.createElement("div");
+    msg.id = "cursed-msg";
+    msg.textContent = "You weren't supposed to find this.";
+    msg.style.position = "fixed";
+    msg.style.top = "50%";
+    msg.style.left = "50%";
+    msg.style.transform = "translate(-50%, -50%)";
+    msg.style.fontSize = "2rem";
+    msg.style.fontWeight = "bold";
+    msg.style.zIndex = "9999";
+    msg.style.padding = "20px";
+    msg.style.background = "rgba(0,0,0,0.85)";
+    msg.style.border = "1px solid #ff0000";
+    msg.style.borderRadius = "8px";
+
+    document.body.appendChild(msg);
+  }
+})();
+</script>
   </body>
 </html>
