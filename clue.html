@@ -22,9 +22,17 @@
   width: 90px;
   height: 90px;
   opacity: 0.18;
+  color: #c084fc;
   filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.08));
   transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease;
   pointer-events: none;
+}
+
+.corner-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  stroke: currentColor;
 }
 
 .corner-icon.active {
@@ -36,21 +44,6 @@
 .top-left {
   top: 24px;
   left: 24px;
-}
-
-.top-right {
-  top: 24px;
-  right: 24px;
-}
-
-.bottom-left {
-  bottom: 24px;
-  left: 24px;
-}
-
-.bottom-right {
-  bottom: 24px;
-  right: 24px;
 }
 
 .center-wrap {
@@ -114,24 +107,9 @@
     height: 62px;
   }
 
-  .top-left,
-  .top-right {
+  .top-left {
     top: 16px;
-  }
-
-  .bottom-left,
-  .bottom-right {
-    bottom: 16px;
-  }
-
-  .top-left,
-  .bottom-left {
     left: 16px;
-  }
-
-  .top-right,
-  .bottom-right {
-    right: 16px;
   }
 
   .panel {
@@ -144,10 +122,12 @@
 </head>
 <body>
 
-  <img src="images/eye.svg" alt="" class="corner-icon top-left" id="icon1">
-  <img src="images/fire.svg" alt="" class="corner-icon top-right" id="icon2">
-  <img src="images/puzzle.svg" alt="" class="corner-icon bottom-left" id="icon3">
-  <img src="images/star.svg" alt="" class="corner-icon bottom-right" id="icon4">
+  <div class="corner-icon top-left active" id="icon1">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+    </svg>
+  </div>
 
   <div class="center-wrap">
     <div class="panel">
@@ -164,34 +144,6 @@
 ```
 
   </div>
-
-  <script>
-    const icons = [
-      document.getElementById("icon1"),
-      document.getElementById("icon2"),
-      document.getElementById("icon3"),
-      document.getElementById("icon4")
-    ];
-
-    const glowDuration = 2500;
-    const gapBetween = 1200;
-    const cyclePause = 20000;
-
-    async function runCycle() {
-      while (true) {
-        for (let i = 0; i < icons.length; i++) {
-          icons[i].classList.add("active");
-          await new Promise(r => setTimeout(r, glowDuration));
-          icons[i].classList.remove("active");
-          await new Promise(r => setTimeout(r, gapBetween));
-        }
-
-        await new Promise(r => setTimeout(r, cyclePause));
-      }
-    }
-
-    runCycle();
-  </script>
 
 </body>
 </html>
