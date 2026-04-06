@@ -19,34 +19,29 @@
 ```
 .corner-icon {
   position: absolute;
-  width: 90px;
-  height: 90px;
-  opacity: 0.18;
-  color: #c084fc;
-  filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.08));
-  transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.corner-icon svg {
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
+  width: 42px;
+  height: 42px;
   display: block;
-  stroke: currentColor;
-}
-
-.corner-icon.active {
-  opacity: 0.42;
-  filter: drop-shadow(0 0 14px rgba(192, 132, 252, 0.35));
-  transform: scale(1.08);
 }
 
 .top-left {
   top: 24px;
   left: 24px;
+}
+
+.top-right {
+  top: 24px;
+  right: 24px;
+}
+
+.bottom-left {
+  bottom: 24px;
+  left: 24px;
+}
+
+.bottom-right {
+  bottom: 24px;
+  right: 24px;
 }
 
 .center-wrap {
@@ -66,6 +61,7 @@
   background: rgba(10, 0, 20, 0.70);
   border: 1px solid rgba(192, 132, 252, 0.18);
   box-shadow: 0 0 22px rgba(192, 132, 252, 0.08);
+  box-sizing: border-box;
 }
 
 .title {
@@ -106,13 +102,28 @@
 
 @media (max-width: 600px) {
   .corner-icon {
-    width: 62px;
-    height: 62px;
+    width: 34px;
+    height: 34px;
   }
 
-  .top-left {
+  .top-left,
+  .top-right {
     top: 16px;
+  }
+
+  .bottom-left,
+  .bottom-right {
+    bottom: 16px;
+  }
+
+  .top-left,
+  .bottom-left {
     left: 16px;
+  }
+
+  .top-right,
+  .bottom-right {
+    right: 16px;
   }
 
   .panel {
@@ -125,18 +136,10 @@
 </head>
 <body>
 
-  <div class="corner-icon top-left active" id="icon1">
-    <svg xmlns="http://www.w3.org/2000/svg"
-         fill="none"
-         viewBox="0 0 24 24"
-         stroke-width="1.5"
-         width="100%"
-         height="100%"
-         preserveAspectRatio="xMidYMid meet">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-    </svg>
-  </div>
+  <img src="images/eye.svg" alt="Eye" class="corner-icon top-left">
+  <img src="images/fire.svg" alt="Fire" class="corner-icon top-right">
+  <img src="images/puzzle.svg" alt="Puzzle" class="corner-icon bottom-left">
+  <img src="images/star.svg" alt="Star" class="corner-icon bottom-right">
 
   <div class="center-wrap">
     <div class="panel">
