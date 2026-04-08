@@ -43,20 +43,8 @@
         line-height: 1.6;
       }
 
-      .message-area {
-        transition: opacity 0.35s ease;
-      }
-
-      .message-area p {
-        margin: 0 0 1rem;
-      }
-
       .char-seed {
-        display: inline;
-        transition:
-          color 0.25s ease,
-          text-shadow 0.25s ease,
-          opacity 0.25s ease;
+        transition: color 0.25s ease, text-shadow 0.25s ease;
       }
 
       .char-seed.target {
@@ -68,7 +56,6 @@
 
       .decode-wrap {
         margin-top: 28px;
-        min-height: 56px;
         opacity: 0;
         transform: translateY(8px);
         transition: opacity 0.45s ease, transform 0.45s ease;
@@ -79,116 +66,49 @@
         transform: translateY(0);
       }
 
-      .decode-label {
-        font-size: 0.8rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        opacity: 0.6;
-        margin-bottom: 10px;
-      }
-
       .decode-line {
         display: flex;
         justify-content: center;
-        align-items: center;
         flex-wrap: wrap;
-        gap: 8px 6px;
+        gap: 6px;
       }
 
       .decode-slot {
         min-width: 0.85em;
-        padding-bottom: 3px;
         border-bottom: 1px solid rgba(192, 132, 252, 0.35);
         color: rgba(224, 224, 224, 0.45);
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        transition:
-          color 0.25s ease,
-          border-color 0.25s ease,
-          text-shadow 0.25s ease;
+        transition: color 0.25s ease;
       }
 
       .decode-slot.filled {
         color: #ff5c7a;
-        border-color: rgba(255, 92, 122, 0.55);
-        text-shadow:
-          0 0 5px rgba(255, 92, 122, 0.55),
-          0 0 12px rgba(255, 92, 122, 0.22);
-      }
-
-      .decode-space {
-        width: 14px;
       }
 
       button {
         margin-top: 30px;
         padding: 10px 20px;
-        font-size: 1rem;
-        border: none;
         background-color: #333;
         color: white;
         border-radius: 6px;
         cursor: pointer;
-        transition: background-color 0.2s, opacity 0.8s ease;
-      }
-
-      button:hover {
-        background-color: #555;
-      }
-
-      @media (max-width: 768px) {
-        .content {
-          font-size: 1rem;
-        }
-
-        .decode-line {
-          gap: 7px 5px;
-        }
       }
     </style>
   </head>
 
   <body>
-    <div class="content">
-      <div class="message-area" id="message-area">
-        <p><strong>You asked why I'm quiet.</strong></p>
+    <div class="content" id="message-area">
+      <p><strong>You asked why I'm quiet.</strong></p>
+      <p>I speak when I have something to say.<br>Not before. Not for show.</p>
+      <p>I keep to myself. That’s how I work.<br>It’s not a phase.</p>
+      <p>This isn’t a bit.</p>
+      <p>If I seem quiet, I’m just waiting.</p>
 
-        <p>
-          I speak when I have something to say. <br />
-          Not before. Not for show.
-        </p>
-
-        <p>
-          I keep to myself. That’s how I work. That’s how I live. <br />
-          It’s not a phase, and it’s not up for review.
-        </p>
-
-        <p>
-          There’s no performance here. No punchline coming. <br />
-          This isn’t a bit.
-        </p>
-
-        <p>
-          I keep my circle small on purpose. <br />
-          But I’m not closed off. <br />
-          If I seem quiet, I’m just waiting to see if it’s worth opening up. <br />
-          For the right people, I’m not quiet at all.
-        </p>
-
-        <p>
-          You asked<span
-            id="hidden-dot"
-            onclick="location.href='/friends/friends.html'"
-            style="cursor: pointer; display: inline-block; width: 14px; text-align: center; color: inherit;"
-            >.</span
-          >
-          This is the answer.<br />
-          It doesn’t need more.
-        </p>
-      </div>
+      <p>
+        You asked<span id="hidden-dot">.</span>
+        This is the answer.
+      </p>
 
       <div class="decode-wrap" id="decode-wrap">
-        <div class="decode-label">Decoded</div>
         <div class="decode-line" id="decode-line"></div>
       </div>
 
@@ -197,330 +117,143 @@
 
     <script>
       (() => {
-        const keyboardCode = [
-          "ArrowUp", "ArrowUp",
-          "ArrowDown", "ArrowDown",
-          "ArrowLeft", "ArrowRight",
-          "ArrowLeft", "ArrowRight",
-          "b", "a"
-        ];
-
-        const touchCode = [
-          "up", "up",
-          "down", "down",
-          "left", "right",
-          "left", "right",
-          "tap", "tap"
-        ];
-
         const secretPhrase = "Cursed is watching";
-        const glitchChars = "!@#$%^&*()_+-=[]{}<>?/\\|~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const glitchChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
 
-        let keyIndex = 0;
-        let touchIndex = 0;
-        let startX = 0;
-        let startY = 0;
         let konamiActive = false;
         let understoodClicked = false;
-        let revealRunning = false;
-        let revealComplete = false;
 
-        const understoodButton = document.getElementById("understood-btn");
-        const hiddenDot = document.getElementById("hidden-dot");
         const messageArea = document.getElementById("message-area");
         const decodeWrap = document.getElementById("decode-wrap");
         const decodeLine = document.getElementById("decode-line");
 
-        understoodButton.addEventListener("click", function () {
-          understoodClicked = true;
-          this.innerText = "Great";
-          setTimeout(() => { this.style.opacity = "0"; }, 1000);
-          setTimeout(() => { this.style.visibility = "hidden"; }, 2100);
-        });
+        function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+        function randomChar(){ return glitchChars[Math.floor(Math.random()*glitchChars.length)]; }
 
-        function sleep(ms) {
-          return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function randomGlitchChar() {
-          return glitchChars[Math.floor(Math.random() * glitchChars.length)];
-        }
-
-        function handleSequenceInput(input, sequence, getIndex, setIndex) {
-          const currentIndex = getIndex();
-
-          if (input === sequence[currentIndex]) {
-            const nextIndex = currentIndex + 1;
-            setIndex(nextIndex);
-
-            if (nextIndex === sequence.length) {
-              setIndex(0);
-              activate();
-            }
-          } else {
-            setIndex(input === sequence[0] ? 1 : 0);
-          }
-        }
-
-        function handlePeriodRoute() {
-          if (konamiActive) {
-            window.location.href = "/clue.html";
-            return;
-          }
-
-          window.location.href = "/friends/friends.html";
-        }
-
-        function collectTextNodes(root) {
-          const walker = document.createTreeWalker(
-            root,
-            NodeFilter.SHOW_TEXT,
-            {
-              acceptNode(node) {
-                if (!node.nodeValue || !node.nodeValue.length) {
-                  return NodeFilter.FILTER_REJECT;
-                }
-
-                const parent = node.parentElement;
-                if (!parent) return NodeFilter.FILTER_REJECT;
-                if (parent.closest("button")) return NodeFilter.FILTER_REJECT;
-                if (parent.id === "hidden-dot") return NodeFilter.FILTER_REJECT;
-
-                return NodeFilter.FILTER_ACCEPT;
-              }
-            }
-          );
-
-          const nodes = [];
-          let current;
-          while ((current = walker.nextNode())) {
-            nodes.push(current);
-          }
-          return nodes;
-        }
-
-        function wrapCharacters(root) {
-          const textNodes = collectTextNodes(root);
-          const wrappedChars = [];
-
-          textNodes.forEach(node => {
-            const text = node.nodeValue;
+        function wrapText(){
+          const walker = document.createTreeWalker(messageArea, NodeFilter.SHOW_TEXT);
+          let node;
+          while(node = walker.nextNode()){
             const frag = document.createDocumentFragment();
-
-            for (const ch of text) {
-              if (ch === "\n") {
-                frag.appendChild(document.createTextNode(ch));
-                continue;
-              }
-
+            for(const ch of node.nodeValue){
               const span = document.createElement("span");
               span.className = "char-seed";
               span.textContent = ch;
               span.dataset.original = ch;
               frag.appendChild(span);
-
-              wrappedChars.push({
-                char: ch,
-                lower: ch.toLowerCase(),
-                span
-              });
             }
-
-            node.parentNode.replaceChild(frag, node);
-          });
-
-          return wrappedChars;
+            node.parentNode.replaceChild(frag,node);
+          }
         }
 
-        const wrappedChars = wrapCharacters(messageArea);
+        wrapText();
 
-        function findSourceSpans(chars, phrase) {
-          const targets = [];
-          let searchStart = 0;
+        function buildDecode(){
+          for(const ch of secretPhrase){
+            if(ch===" "){
+              const s=document.createElement("span");
+              s.className="decode-space";
+              decodeLine.appendChild(s);
+            } else {
+              const slot=document.createElement("span");
+              slot.className="decode-slot";
+              slot.textContent="_";
+              decodeLine.appendChild(slot);
+            }
+          }
+        }
 
-          for (const wantedChar of phrase.toLowerCase()) {
-            if (wantedChar === " ") {
-              targets.push({ type: "space" });
+        buildDecode();
+
+        const slots = document.querySelectorAll(".decode-slot");
+        const chars = document.querySelectorAll(".char-seed");
+
+        async function reveal(){
+          document.body.classList.add("cursed-state");
+          decodeWrap.classList.add("show");
+
+          let slotIndex=0;
+
+          for(const letter of secretPhrase){
+            if(letter===" "){
+              await sleep(400);
               continue;
             }
 
-            let foundIndex = -1;
-
-            for (let i = searchStart; i < chars.length; i++) {
-              if (chars[i].lower === wantedChar) {
-                foundIndex = i;
+            // find next matching character in text
+            let target;
+            for(const c of chars){
+              if(!c.classList.contains("used") && c.textContent.toLowerCase()===letter){
+                target=c;
                 break;
               }
             }
 
-            if (foundIndex === -1) {
-              for (let i = 0; i < searchStart; i++) {
-                if (chars[i].lower === wantedChar) {
-                  foundIndex = i;
-                  break;
-                }
-              }
-            }
+            if(!target) continue;
+            target.classList.add("used");
 
-            if (foundIndex === -1) {
-              throw new Error(`Could not find required character: ${wantedChar}`);
-            }
-
-            targets.push({
-              type: "char",
-              letter: wantedChar,
-              span: chars[foundIndex].span
-            });
-
-            searchStart = foundIndex + 1;
-          }
-
-          return targets;
-        }
-
-        const sourceTargets = findSourceSpans(wrappedChars, secretPhrase);
-
-        function buildDecodeLine(phrase) {
-          decodeLine.innerHTML = "";
-          const slots = [];
-
-          for (const ch of phrase) {
-            if (ch === " ") {
-              const spacer = document.createElement("span");
-              spacer.className = "decode-space";
-              decodeLine.appendChild(spacer);
-              slots.push(null);
-            } else {
-              const slot = document.createElement("span");
-              slot.className = "decode-slot";
-              slot.textContent = "_";
-              decodeLine.appendChild(slot);
-              slots.push(slot);
-            }
-          }
-
-          return slots;
-        }
-
-        const decodeSlots = buildDecodeLine(secretPhrase);
-
-        async function glitchRevealSource(span, finalChar) {
-          const original = span.dataset.original;
-
-          for (let i = 0; i < 9; i++) {
-            span.textContent = randomGlitchChar();
-            await sleep(65);
-          }
-
-          span.textContent = finalChar.toUpperCase() === original.toUpperCase() ? original : original;
-          span.classList.add("target");
-        }
-
-        async function revealHiddenMessage() {
-          if (revealRunning || revealComplete) return;
-
-          revealRunning = true;
-          konamiActive = true;
-
-          document.body.classList.add("cursed-state");
-          decodeWrap.classList.add("show");
-
-          hiddenDot.onclick = handlePeriodRoute;
-          hiddenDot.style.color = "#c084fc";
-          hiddenDot.style.cursor = "pointer";
-
-          for (let i = 0; i < sourceTargets.length; i++) {
-            const target = sourceTargets[i];
-
-            if (target.type === "space") {
+            // slow glitch phase
+            for(let i=0;i<12;i++){
+              target.textContent = randomChar();
               await sleep(180);
-              continue;
             }
 
-            await glitchRevealSource(target.span, target.letter);
+            target.textContent = target.dataset.original;
+            target.classList.add("target");
 
-            const slot = decodeSlots[i];
-            if (slot) {
-              slot.textContent = secretPhrase[i];
+            // fill decode slot
+            const slot = slots[slotIndex++];
+            if(slot){
+              slot.textContent = letter;
               slot.classList.add("filled");
             }
 
-            await sleep(170);
+            await sleep(450);
           }
-
-          revealRunning = false;
-          revealComplete = true;
         }
 
-        document.addEventListener("keydown", (e) => {
-          const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-
-          if (
-            key === "ArrowUp" ||
-            key === "ArrowDown" ||
-            key === "ArrowLeft" ||
-            key === "ArrowRight"
-          ) {
-            e.preventDefault();
-          }
-
-          if (key === ".") {
-            e.preventDefault();
-            handlePeriodRoute();
+        function activate(){
+          if(understoodClicked){
+            window.location.href="/kafka.html";
             return;
           }
 
-          handleSequenceInput(
-            key,
-            keyboardCode,
-            () => keyIndex,
-            (value) => { keyIndex = value; }
-          );
-        });
+          if(konamiActive) return;
+          konamiActive=true;
+          reveal();
+        }
 
-        document.addEventListener("touchstart", (e) => {
-          const touch = e.changedTouches[0];
-          startX = touch.clientX;
-          startY = touch.clientY;
-        }, { passive: true });
-
-        document.addEventListener("touchend", (e) => {
-          const touch = e.changedTouches[0];
-          const dx = touch.clientX - startX;
-          const dy = touch.clientY - startY;
-
-          const absX = Math.abs(dx);
-          const absY = Math.abs(dy);
-          const threshold = 40;
-
-          let input = "tap";
-
-          if (absX > threshold || absY > threshold) {
-            if (absX > absY) {
-              input = dx > 0 ? "right" : "left";
+        document.addEventListener("keydown",(e)=>{
+          if(e.key==="."){
+            if(konamiActive){
+              window.location.href="/clue.html";
             } else {
-              input = dy > 0 ? "down" : "up";
+              window.location.href="/friends/friends.html";
             }
           }
+        });
 
-          handleSequenceInput(
-            input,
-            touchCode,
-            () => touchIndex,
-            (value) => { touchIndex = value; }
-          );
-        }, { passive: true });
+        // simple Konami detection
+        const code=["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+        let index=0;
 
-        function activate() {
-          if (understoodClicked) {
-            window.location.href = "/kafka.html";
-            return;
+        document.addEventListener("keydown",(e)=>{
+          if(e.key===code[index]){
+            index++;
+            if(index===code.length){
+              activate();
+              index=0;
+            }
+          } else {
+            index=0;
           }
+        });
 
-          if (revealRunning || revealComplete) return;
-
-          revealHiddenMessage();
-        }
+        document.getElementById("understood-btn").onclick = function(){
+          understoodClicked=true;
+          this.innerText="Great";
+          this.style.opacity="0";
+        };
       })();
     </script>
   </body>
