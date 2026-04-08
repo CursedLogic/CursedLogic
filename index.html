@@ -1,317 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>You asked.</title>
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WNP94WVB22"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-WNP94WVB22');
+    </script>
 
-  <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      background: #1e1e1e;
-      color: #e0e0e0;
-      text-align: center;
-      padding: 20px;
-      transition: background 0.5s ease, color 0.5s ease;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>You asked.</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
 
-    body.cursed {
-      background: #0a0014;
-      color: #c084fc;
-    }
-
-    .content {
-      max-width: 600px;
-      line-height: 1.6;
-      font-size: 1.2rem;
-    }
-
-    .target {
-      color: #ff5c7a;
-      text-shadow: 0 0 6px rgba(255, 92, 122, 0.5);
-    }
-
-    .decode {
-      margin-top: 30px;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-
-    .decode.show {
-      opacity: 1;
-    }
-
-    .slot {
-      display: inline-block;
-      min-width: 12px;
-      border-bottom: 1px solid #aaa;
-      margin: 2px;
-    }
-
-    .slot.filled {
-      color: #ff5c7a;
-      border-color: #ff5c7a;
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="content" id="content">
-
-  <p><strong>You asked why I'm quiet.</strong></p>
-
-  <p>
-    I speak when I have something to say.<br>
-    Not before. Not for show.
-  </p>
-
-  <p>
-    I keep to myself. That’s how I work.<br>
-    It’s not a phase.
-  </p>
-
-  <p>This isn’t a bit.</p>
-
-  <p>If I seem quiet, I’m just waiting.</p>
-
-  <p>
-    You asked<span id="dot">.</span> This is the answer.
-  </p>
-
-  <div class="decode" id="decode"></div>
-
-</div>
-
-<script>
-(() => {
-
-const phrase = "cursed is watching";
-const glitchChars = "!@#$%^&*ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-let konamiActive = false;
-let understoodClicked = false;
-
-// ----------------------
-// FIXED ARROW KEYS BLOCK
-// ----------------------
-document.addEventListener("keydown", e => {
-  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
-    e.preventDefault();
-  }
-});
-
-// ----------------------
-// PERIOD LOGIC
-// ----------------------
-document.addEventListener("keydown", e => {
-  if (e.key === ".") {
-    if (konamiActive) location.href = "/clue.html";
-    else location.href = "/friends/friends.html";
-  }
-});
-
-// ----------------------
-// KONAMI
-// ----------------------
-const code = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
-let index = 0;
-
-document.addEventListener("keydown", e => {
-  if (e.key === code[index]) {
-    index++;
-    if (index === code.length) {
-      activate();
-      index = 0;
-    }
-  } else {
-    index = 0;
-  }
-});
-
-// ----------------------
-// CORE FIX: TARGET ONLY REAL LETTERS
-// ----------------------
-function findTargets() {
-
-  const walker = document.createTreeWalker(
-    document.getElementById("content"),
-    NodeFilter.SHOW_TEXT
-  );
-
-  const matches = [];
-  const chars = [];
-
-  let node;
-  while (node = walker.nextNode()) {
-    if (!node.nodeValue.trim()) continue;
-
-    for (let i = 0; i < node.nodeValue.length; i++) {
-      chars.push({node, index:i, char: node.nodeValue[i].toLowerCase()});
-    }
-  }
-
-  let pointer = 0;
-
-  for (let letter of phrase) {
-
-    if (letter === " ") {
-      matches.push(null);
-      continue;
-    }
-
-    for (let i = pointer; i < chars.length; i++) {
-      if (chars[i].char === letter) {
-
-        matches.push(chars[i]);
-        pointer = i + 1;
-        break;
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        min-height: 100vh;
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        padding: 20px;
+        text-align: center;
+        transition: background-color 0.45s ease, color 0.45s ease;
       }
-    }
-  }
 
-  return matches;
-}
+      body.cursed-state {
+        background-color: #0a0014;
+        color: #c084fc;
+      }
 
-// ----------------------
-// APPLY TARGETS (ONLY MODIFY THOSE LETTERS)
-// ----------------------
-function applyTargets(matches) {
+      .content {
+        max-width: 600px;
+        width: 90%;
+        font-size: 1.2rem;
+        line-height: 1.6;
+      }
 
-  const grouped = new Map();
+      .message-area {
+        transition: opacity 0.35s ease;
+      }
 
-  matches.forEach(m => {
-    if (!m) return;
+      .message-area p {
+        margin: 0 0 1rem;
+      }
 
-    if (!grouped.has(m.node)) grouped.set(m.node, []);
-    grouped.get(m.node).push(m.index);
-  });
+      .char-seed {
+        display: inline;
+        transition:
+          color 0.25s ease,
+          text-shadow 0.25s ease,
+          opacity 0.25s ease;
+      }
 
-  const spans = [];
+      .char-seed.target {
+        color: #ff5c7a;
+        text-shadow:
+          0 0 5px rgba(255, 92, 122, 0.55),
+          0 0 12px rgba(255, 92, 122, 0.3);
+      }
 
-  grouped.forEach((indexes, node) => {
+      .decode-wrap {
+        margin-top: 28px;
+        min-height: 56px;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.45s ease, transform 0.45s ease;
+      }
 
-    const text = node.nodeValue;
-    const frag = document.createDocumentFragment();
+      .decode-wrap.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
 
-    let last = 0;
+      .decode-label {
+        font-size: 0.8rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        opacity: 0.6;
+        margin-bottom: 10px;
+      }
 
-    indexes.sort((a,b)=>a-b);
+      .decode-line {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 6px;
+      }
 
-    indexes.forEach(i => {
+      .decode-slot {
+        min-width: 0.85em;
+        padding-bottom: 3px;
+        border-bottom: 1px solid rgba(192, 132, 252, 0.35);
+        color: rgba(224, 224, 224, 0.45);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        transition:
+          color 0.25s ease,
+          border-color 0.25s ease,
+          text-shadow 0.25s ease;
+      }
 
-      frag.appendChild(document.createTextNode(text.slice(last, i)));
+      .decode-slot.filled {
+        color: #ff5c7a;
+        border-color: rgba(255, 92, 122, 0.55);
+        text-shadow:
+          0 0 5px rgba(255, 92, 122, 0.55),
+          0 0 12px rgba(255, 92, 122, 0.22);
+      }
 
-      const span = document.createElement("span");
-      span.textContent = text[i];
-      frag.appendChild(span);
+      .decode-space {
+        width: 14px;
+      }
 
-      spans.push(span);
-      last = i + 1;
-    });
+      button {
+        margin-top: 30px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border: none;
+        background-color: #333;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s, opacity 0.8s ease;
+      }
 
-    frag.appendChild(document.createTextNode(text.slice(last)));
+      button:hover {
+        background-color: #555;
+      }
 
-    node.parentNode.replaceChild(frag, node);
-  });
+      @media (max-width: 768px) {
+        .content {
+          font-size: 1rem;
+        }
 
-  return spans;
-}
+        .decode-line {
+          gap: 7px 5px;
+        }
+      }
+    </style>
+  </head>
 
-// ----------------------
-// DECODE LINE
-// ----------------------
-function buildDecode() {
+  <body>
+    <div class="content">
+      <div class="message-area" id="message-area">
+        <p><strong>You asked why I'm quiet.</strong></p>
 
-  const container = document.getElementById("decode");
-  const slots = [];
+        <p>
+          I speak when I have something to say. <br />
+          Not before. Not for show.
+        </p>
 
-  phrase.split("").forEach(c => {
-    if (c === " ") {
-      container.appendChild(document.createTextNode(" "));
-      slots.push(null);
-    } else {
-      const s = document.createElement("span");
-      s.className = "slot";
-      s.textContent = "_";
-      container.appendChild(s);
-      slots.push(s);
-    }
-  });
+        <p>
+          I keep to myself. That’s how I work. That’s how I live. <br />
+          It’s not a phase, and it’s not up for review.
+        </p>
 
-  return slots;
-}
+        <p>
+          There’s no performance here. No punchline coming. <br />
+          This isn’t a bit.
+        </p>
 
-// ----------------------
-// GLITCH
-// ----------------------
-function randomChar() {
-  return glitchChars[Math.floor(Math.random()*glitchChars.length)];
-}
+        <p>
+          I keep my circle small on purpose. <br />
+          But I’m not closed off. <br />
+          If I seem quiet, I’m just waiting to see if it’s worth opening up. <br />
+          For the right people, I’m not quiet at all.
+        </p>
 
-function sleep(ms) {
-  return new Promise(r=>setTimeout(r,ms));
-}
+        <p>
+          You asked<span
+            id="hidden-dot"
+            onclick="location.href='/friends/friends.html'"
+            style="cursor: pointer; display: inline-block; width: 14px; text-align: center; color: inherit;"
+            >.</span
+          >
+          This is the answer.<br />
+          It doesn’t need more.
+        </p>
+      </div>
 
-async function glitch(span) {
-  for (let i = 0; i < 12; i++) {
-    span.textContent = randomChar();
-    await sleep(180);
-  }
-}
+      <div class="decode-wrap" id="decode-wrap">
+        <div class="decode-label">Decoded</div>
+        <div class="decode-line" id="decode-line"></div>
+      </div>
 
-// ----------------------
-// ACTIVATE
-// ----------------------
-async function activate() {
+      <button id="understood-btn">Understood</button>
+    </div>
 
-  if (understoodClicked) {
-    location.href = "/kafka.html";
-    return;
-  }
+    <script>
+      (() => {
+        const keyboardCode = [
+          "ArrowUp", "ArrowUp",
+          "ArrowDown", "ArrowDown",
+          "ArrowLeft", "ArrowRight",
+          "ArrowLeft", "ArrowRight",
+          "b", "a"
+        ];
 
-  if (konamiActive) return;
-  konamiActive = true;
+        const touchCode = [
+          "up", "up",
+          "down", "down",
+          "left", "right",
+          "left", "right",
+          "tap", "tap"
+        ];
 
-  document.body.classList.add("cursed");
+        const secretPhrase = "Cursed is watching";
+        const glitchChars = "!@#$%^&*()_+-=[]{}<>?/\\|~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  const matches = findTargets();
-  const spans = applyTargets(matches);
-  const slots = buildDecode();
+        let keyIndex = 0;
+        let touchIndex = 0;
+        let startX = 0;
+        let startY = 0;
+        let konamiActive = false;
+        let understoodClicked = false;
+        let revealRunning = false;
+        let revealComplete = false;
 
-  document.getElementById("decode").classList.add("show");
+        const understoodButton = document.getElementById("understood-btn");
+        const hiddenDot = document.getElementById("hidden-dot");
+        const messageArea = document.getElementById("message-area");
+        const decodeWrap = document.getElementById("decode-wrap");
+        const decodeLine = document.getElementById("decode-line");
 
-  let spanIndex = 0;
+        understoodButton.addEventListener("click", function () {
+          understoodClicked = true;
+          this.innerText = "Great";
+          setTimeout(() => { this.style.opacity = "0"; }, 1000);
+          setTimeout(() => { this.style.visibility = "hidden"; }, 2100);
+        });
 
-  for (let i = 0; i < phrase.length; i++) {
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
-    if (phrase[i] === " ") {
-      await sleep(400);
-      continue;
-    }
+        function randomGlitchChar() {
+          return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+        }
 
-    const span = spans[spanIndex++];
+        function handleSequenceInput(input, sequence, getIndex, setIndex) {
+          const currentIndex = getIndex();
 
-    await glitch(span);
+          if (input === sequence[currentIndex]) {
+            const nextIndex = currentIndex + 1;
+            setIndex(nextIndex);
 
-    span.classList.add("target");
+            if (nextIndex === sequence.length) {
+              setIndex(0);
+              activate();
+            }
+          } else {
+            setIndex(input === sequence[0] ? 1 : 0);
+          }
+        }
 
-    const slot = slots[i];
-    if (slot) {
-      slot.textContent = phrase[i];
-      slot.classList.add("filled");
-    }
+        function handlePeriodRoute() {
+          if (konamiActive) {
+            window.location.href = "/clue.html";
+            return;
+          }
 
-    await sleep(450);
-  }
-}
+          window.location.href = "/friends/friends.html";
+        }
 
-})();
-</script>
+        function collectTextNodes(root) {
+          const walker = document.createTreeWalker(
+            root,
+            NodeFilter.SHOW_TEXT,
+            {
+              acceptNode(node) {
+                if (!node.nodeValue || !node.nodeValue.length) {
+                  return NodeFilter.FILTER_REJECT;
+                }
 
-</body>
+                const parent = node.parentElement;
+                if (!parent) return NodeFilter.FILTER_REJECT;
+                if (parent.closest("button")) return NodeFilter.FILTER_REJECT;
+                if (parent.id === "hidden-dot") return NodeFilter.FILTER_REJECT;
+
+                return NodeFilter.FILTER_ACCEPT;
+              }
+            }
+          );
+
+          const nodes = [];
+          let current;
+          while ((current = walker.nextNode())) {
+            nodes.push(current);
+          }
+          return nodes;
+        }
+
+        function wrapCharacters(root) {
+          const textNodes = collectTextNodes(root);
+          const wrappedChars = [];
+
+          textNodes.forEach(node => {
+            const text = node.nodeValue;
+            const frag = document.createDocumentFragment();
+
+            for (const ch of text) {
+              if (ch === "\n") {
+                frag.appendChild(document.createTextNode(ch));
+                continue;
+              }
+
+              const span = document.createElement("span");
+              span.className = "char-seed";
+              span.textContent = ch;
+              span.dataset.original = ch;
+              frag.appendChild(span);
+
+              wrappedChars.push({
+                char: ch,
+                lower: ch.toLowerCase(),
+                span
+              });
+            }
+
+            node.parentNode.replaceChild(frag, node);
+          });
+
+          return wrappedChars;
+        }
+
+        const wrappedChars = wrapCharacters(messageArea);
+
+        function findSourceSpans(chars, phrase) {
+          const targets = [];
+          let searchStart = 0;
+
+          for (const wantedChar of phrase.toLowerCase()) {
+            if (wantedChar === " ") {
+              targets.push({ type: "space" });
+              continue;
+            }
+
+            let foundIndex = -1;
+
+            for (let i = searchStart; i < chars.length; i++) {
+              if (chars[i].lower === wantedChar) {
+                foundIndex = i;
+                break;
+              }
+            }
+
+            if (foundIndex === -1) {
+              for (let i = 0; i < searchStart; i++) {
+                if (chars[i].lower === wantedChar) {
+                  foundIndex = i;
+                  break;
+                }
+              }
+            }
+
+            if (foundIndex === -1) {
+              throw new Error(`Could not find required character: ${wantedChar}`);
+            }
+
+            targets.push({
+              type: "char",
+              letter: wantedChar,
+              span: chars[foundIndex].span
+            });
+
+            searchStart = foundIndex + 1;
+          }
+
+          return targets;
+        }
+
+        const sourceTargets = findSourceSpans(wrappedChars, secretPhrase);
+
+        function buildDecodeLine(phrase) {
+          decodeLine.innerHTML = "";
+          const slots = [];
+
+          for (const ch of phrase) {
+            if (ch === " ") {
+              const spacer = document.createElement("span");
+              spacer.className = "decode-space";
+              decodeLine.appendChild(spacer);
+              slots.push(null);
+            } else {
+              const slot = document.createElement("span");
+              slot.className = "decode-slot";
+              slot.textContent = "_";
+              decodeLine.appendChild(slot);
+              slots.push(slot);
+            }
+          }
+
+          return slots;
+        }
+
+        const decodeSlots = buildDecodeLine(secretPhrase);
+
+        async function glitchRevealSource(span, finalChar) {
+          const original = span.dataset.original;
+
+          for (let i = 0; i < 9; i++) {
+            span.textContent = randomGlitchChar();
+            await sleep(65);
+          }
+
+          span.textContent = finalChar.toUpperCase() === original.toUpperCase() ? original : original;
+          span.classList.add("target");
+        }
+
+        async function revealHiddenMessage() {
+          if (revealRunning || revealComplete) return;
+
+          revealRunning = true;
+          konamiActive = true;
+
+          document.body.classList.add("cursed-state");
+          decodeWrap.classList.add("show");
+
+          hiddenDot.onclick = handlePeriodRoute;
+          hiddenDot.style.color = "#c084fc";
+          hiddenDot.style.cursor = "pointer";
+
+          for (let i = 0; i < sourceTargets.length; i++) {
+            const target = sourceTargets[i];
+
+            if (target.type === "space") {
+              await sleep(180);
+              continue;
+            }
+
+            await glitchRevealSource(target.span, target.letter);
+
+            const slot = decodeSlots[i];
+            if (slot) {
+              slot.textContent = secretPhrase[i];
+              slot.classList.add("filled");
+            }
+
+            await sleep(170);
+          }
+
+          revealRunning = false;
+          revealComplete = true;
+        }
+
+        document.addEventListener("keydown", (e) => {
+          const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+
+          if (
+            key === "ArrowUp" ||
+            key === "ArrowDown" ||
+            key === "ArrowLeft" ||
+            key === "ArrowRight"
+          ) {
+            e.preventDefault();
+          }
+
+          if (key === ".") {
+            e.preventDefault();
+            handlePeriodRoute();
+            return;
+          }
+
+          handleSequenceInput(
+            key,
+            keyboardCode,
+            () => keyIndex,
+            (value) => { keyIndex = value; }
+          );
+        });
+
+        document.addEventListener("touchstart", (e) => {
+          const touch = e.changedTouches[0];
+          startX = touch.clientX;
+          startY = touch.clientY;
+        }, { passive: true });
+
+        document.addEventListener("touchend", (e) => {
+          const touch = e.changedTouches[0];
+          const dx = touch.clientX - startX;
+          const dy = touch.clientY - startY;
+
+          const absX = Math.abs(dx);
+          const absY = Math.abs(dy);
+          const threshold = 40;
+
+          let input = "tap";
+
+          if (absX > threshold || absY > threshold) {
+            if (absX > absY) {
+              input = dx > 0 ? "right" : "left";
+            } else {
+              input = dy > 0 ? "down" : "up";
+            }
+          }
+
+          handleSequenceInput(
+            input,
+            touchCode,
+            () => touchIndex,
+            (value) => { touchIndex = value; }
+          );
+        }, { passive: true });
+
+        function activate() {
+          if (understoodClicked) {
+            window.location.href = "/kafka.html";
+            return;
+          }
+
+          if (revealRunning || revealComplete) return;
+
+          revealHiddenMessage();
+        }
+      })();
+    </script>
+  </body>
 </html>
