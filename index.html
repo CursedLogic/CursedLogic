@@ -54,9 +54,16 @@
       .char-seed {
         display: inline;
         transition:
-          color 0.25s ease,
-          text-shadow 0.25s ease,
+          color 0.2s ease,
+          text-shadow 0.2s ease,
           opacity 0.25s ease;
+      }
+
+      .char-seed.glitching {
+        color: #2dd4bf;
+        text-shadow:
+          0 0 4px rgba(45, 212, 191, 0.6),
+          0 0 10px rgba(45, 212, 191, 0.3);
       }
 
       .char-seed.target {
@@ -405,52 +412,55 @@
         const decodeSlots = buildDecodeLine(secretPhrase);
 
         async function glitchRevealSource(span, finalChar) {
-  const original = span.dataset.original;
+          const original = span.dataset.original;
 
-  for (let i = 0; i < 9; i++) {
-    span.textContent = randomGlitchChar();
-    await sleep(120);
-  }
+          span.classList.add("glitching");
 
-  span.textContent = original;
-  span.classList.add("target");
-}
+          for (let i = 0; i < 9; i++) {
+            span.textContent = randomGlitchChar();
+            await sleep(120);
+          }
 
-async function revealHiddenMessage() {
-  if (revealRunning || revealComplete) return;
+          span.classList.remove("glitching");
+          span.textContent = original;
+          span.classList.add("target");
+        }
 
-  revealRunning = true;
-  konamiActive = true;
+        async function revealHiddenMessage() {
+          if (revealRunning || revealComplete) return;
 
-  document.body.classList.add("cursed-state");
-  decodeWrap.classList.add("show");
+          revealRunning = true;
+          konamiActive = true;
 
-  hiddenDot.onclick = handlePeriodRoute;
-  hiddenDot.style.color = "#c084fc";
-  hiddenDot.style.cursor = "pointer";
+          document.body.classList.add("cursed-state");
+          decodeWrap.classList.add("show");
 
-  for (let i = 0; i < sourceTargets.length; i++) {
-    const target = sourceTargets[i];
+          hiddenDot.onclick = handlePeriodRoute;
+          hiddenDot.style.color = "#c084fc";
+          hiddenDot.style.cursor = "pointer";
 
-    if (target.type === "space") {
-      await sleep(320);
-      continue;
-    }
+          for (let i = 0; i < sourceTargets.length; i++) {
+            const target = sourceTargets[i];
 
-    await glitchRevealSource(target.span, target.letter);
+            if (target.type === "space") {
+              await sleep(320);
+              continue;
+            }
 
-    const slot = decodeSlots[i];
-    if (slot) {
-      slot.textContent = secretPhrase[i];
-      slot.classList.add("filled");
-    }
+            await glitchRevealSource(target.span, target.letter);
 
-    await sleep(300);
-  }
+            const slot = decodeSlots[i];
+            if (slot) {
+              slot.textContent = secretPhrase[i];
+              slot.classList.add("filled");
+            }
 
-  revealRunning = false;
-  revealComplete = true;
-}
+            await sleep(300);
+          }
+
+          revealRunning = false;
+          revealComplete = true;
+        }
 
         document.addEventListener("keydown", (e) => {
           const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
