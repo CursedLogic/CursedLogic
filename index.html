@@ -2,18 +2,19 @@
 <html lang="en">
   <head>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WNP94WVB22"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WNP94WVB22"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-WNP94WVB22');
+    </script>
 
-  gtag('config', 'G-WNP94WVB22');
-</script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>You asked.</title>
     <link rel="icon" type="image/png" href="/images/favicon.png" />
+
     <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -45,7 +46,7 @@
         color: white;
         border-radius: 6px;
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: background-color 0.2s, opacity 0.8s ease;
       }
 
       button:hover {
@@ -59,6 +60,7 @@
       }
     </style>
   </head>
+
   <body>
     <div class="content">
       <p><strong>You asked why I'm quiet.</strong></p>
@@ -87,6 +89,7 @@
 
       <p>
         You asked<span
+          id="hidden-dot"
           onclick="location.href='/friends/friends.html'"
           style="cursor: pointer; display: inline-block; width: 14px; text-align: center; color: inherit;"
           >.</span
@@ -95,197 +98,214 @@
         It doesn’t need more.
       </p>
 
-      <button onclick="
-  localStorage.setItem('understoodClicked', 'true');
-  this.innerText = 'Great';
-  setTimeout(() => this.style.transition = 'opacity 1s ease', 50);
-  setTimeout(() => this.style.opacity = '0', 1000);
-  setTimeout(() => this.style.visibility = 'hidden', 2100);
-">
-  Understood
-</button>
+      <button
+        onclick="
+          localStorage.setItem('understoodClicked', 'true');
+          this.innerText = 'Great';
+          setTimeout(() => this.style.opacity = '0', 1000);
+          setTimeout(() => this.style.visibility = 'hidden', 2100);
+        "
+      >
+        Understood
+      </button>
     </div>
 
     <script>
-(() => {
-  const keyboardCode = [
-    "ArrowUp", "ArrowUp",
-    "ArrowDown", "ArrowDown",
-    "ArrowLeft", "ArrowRight",
-    "ArrowLeft", "ArrowRight",
-    "b", "a"
-  ];
+      (() => {
+        const keyboardCode = [
+          "ArrowUp", "ArrowUp",
+          "ArrowDown", "ArrowDown",
+          "ArrowLeft", "ArrowRight",
+          "ArrowLeft", "ArrowRight",
+          "b", "a"
+        ];
 
-  const touchCode = [
-    "up", "up",
-    "down", "down",
-    "left", "right",
-    "left", "right",
-    "tap", "tap"
-  ];
+        const touchCode = [
+          "up", "up",
+          "down", "down",
+          "left", "right",
+          "left", "right",
+          "tap", "tap"
+        ];
 
-  let keyIndex = 0;
-  let touchIndex = 0;
-  let startX = 0;
-  let startY = 0;
+        let keyIndex = 0;
+        let touchIndex = 0;
+        let startX = 0;
+        let startY = 0;
+        let konamiActive = false;
 
-  function handleSequenceInput(input, sequence, getIndex, setIndex) {
-    const currentIndex = getIndex();
+        function handleSequenceInput(input, sequence, getIndex, setIndex) {
+          const currentIndex = getIndex();
 
-    if (input === sequence[currentIndex]) {
-      const nextIndex = currentIndex + 1;
-      setIndex(nextIndex);
+          if (input === sequence[currentIndex]) {
+            const nextIndex = currentIndex + 1;
+            setIndex(nextIndex);
 
-      if (nextIndex === sequence.length) {
-        setIndex(0);
-        activate();
-      }
-    } else {
-      setIndex(input === sequence[0] ? 1 : 0);
-    }
-  }
+            if (nextIndex === sequence.length) {
+              setIndex(0);
+              activate();
+            }
+          } else {
+            setIndex(input === sequence[0] ? 1 : 0);
+          }
+        }
 
-  document.addEventListener("keydown", (e) => {
-    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        function handlePeriodRoute() {
+          if (konamiActive) {
+            window.location.href = "/clue.html";
+            return;
+          }
 
-    if (
-      key === "ArrowUp" ||
-      key === "ArrowDown" ||
-      key === "ArrowLeft" ||
-      key === "ArrowRight"
-    ) {
-      e.preventDefault();
-    }
+          window.location.href = "/friends/friends.html";
+        }
 
-    handleSequenceInput(
-      key,
-      keyboardCode,
-      () => keyIndex,
-      (value) => { keyIndex = value; }
-    );
-  });
+        document.addEventListener("keydown", (e) => {
+          const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
 
-  document.addEventListener("touchstart", (e) => {
-    const touch = e.changedTouches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-  }, { passive: true });
+          if (
+            key === "ArrowUp" ||
+            key === "ArrowDown" ||
+            key === "ArrowLeft" ||
+            key === "ArrowRight"
+          ) {
+            e.preventDefault();
+          }
 
-  document.addEventListener("touchend", (e) => {
-    const touch = e.changedTouches[0];
-    const dx = touch.clientX - startX;
-    const dy = touch.clientY - startY;
+          if (key === ".") {
+            e.preventDefault();
+            handlePeriodRoute();
+            return;
+          }
 
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
-    const threshold = 40;
+          handleSequenceInput(
+            key,
+            keyboardCode,
+            () => keyIndex,
+            (value) => { keyIndex = value; }
+          );
+        });
 
-    let input = "tap";
+        document.addEventListener("touchstart", (e) => {
+          const touch = e.changedTouches[0];
+          startX = touch.clientX;
+          startY = touch.clientY;
+        }, { passive: true });
 
-    if (absX > threshold || absY > threshold) {
-      if (absX > absY) {
-        input = dx > 0 ? "right" : "left";
-      } else {
-        input = dy > 0 ? "down" : "up";
-      }
-    }
+        document.addEventListener("touchend", (e) => {
+          const touch = e.changedTouches[0];
+          const dx = touch.clientX - startX;
+          const dy = touch.clientY - startY;
 
-    handleSequenceInput(
-      input,
-      touchCode,
-      () => touchIndex,
-      (value) => { touchIndex = value; }
-    );
-  }, { passive: true });
+          const absX = Math.abs(dx);
+          const absY = Math.abs(dy);
+          const threshold = 40;
 
-  function activate() {
-    if (document.getElementById("cursed-overlay")) return;
+          let input = "tap";
 
-    const content = document.querySelector(".content");
+          if (absX > threshold || absY > threshold) {
+            if (absX > absY) {
+              input = dx > 0 ? "right" : "left";
+            } else {
+              input = dy > 0 ? "down" : "up";
+            }
+          }
 
-    content.style.transition = "opacity 0.4s ease";
-    content.style.opacity = "0";
+          handleSequenceInput(
+            input,
+            touchCode,
+            () => touchIndex,
+            (value) => { touchIndex = value; }
+          );
+        }, { passive: true });
 
-    setTimeout(() => {
-      document.body.style.background = "#0a0014";
-      document.body.style.color = "#c084fc";
+        function activate() {
+          const understood = localStorage.getItem("understoodClicked") === "true";
+          konamiActive = true;
 
-      const dot = document.querySelector("span[onclick]");
-      if (dot) {
-        dot.onclick = () => {
-          window.location.href = "/void.html";
-        };
-        dot.style.color = "#c084fc";
-        dot.style.cursor = "pointer";
-      }
+          if (understood) {
+            window.location.href = "/kafka.html";
+            return;
+          }
 
-      createOverlay();
-    }, 400);
-  }
+          if (document.getElementById("cursed-overlay")) return;
 
-  function createOverlay() {
-  const overlay = document.createElement("div");
-  overlay.id = "cursed-overlay";
+          const content = document.querySelector(".content");
+          content.style.transition = "opacity 0.4s ease";
+          content.style.opacity = "0";
 
-  overlay.style.position = "fixed";
-  overlay.style.top = "0";
-  overlay.style.left = "0";
-  overlay.style.width = "100vw";
-  overlay.style.height = "100vh";
-  overlay.style.display = "flex";
-  overlay.style.justifyContent = "center";
-  overlay.style.alignItems = "center";
-  overlay.style.background = "rgba(10, 0, 20, 0.96)";
-  overlay.style.zIndex = "9999";
+          setTimeout(() => {
+            document.body.style.background = "#0a0014";
+            document.body.style.color = "#c084fc";
 
-  overlay.style.fontSize = "clamp(1.2rem, 5vw, 2rem)";
-  overlay.style.fontWeight = "bold";
-  overlay.style.textAlign = "center";
-  overlay.style.padding = "32px";
-  overlay.style.boxSizing = "border-box";
-  overlay.style.lineHeight = "1.4";
-  overlay.style.wordBreak = "break-word";
-  overlay.style.width = "100%";
-  overlay.style.maxWidth = "90vw";
-  overlay.style.margin = "0 auto";
-  overlay.style.whiteSpace = "pre-line";
+            const dot = document.getElementById("hidden-dot");
+            if (dot) {
+              dot.onclick = handlePeriodRoute;
+              dot.style.color = "#c084fc";
+              dot.style.cursor = "pointer";
+            }
 
-  document.body.appendChild(overlay);
-  typeMessage(overlay);
-}
+            createOverlay();
+          }, 400);
+        }
 
-  function typeMessage(container) {
-  const understood = localStorage.getItem("understoodClicked") === "true";
-  const text = understood
-    ? "You understood. And still kept going."
-    : "You weren't supposed to find this.";
+        function createOverlay() {
+          const overlay = document.createElement("div");
+          overlay.id = "cursed-overlay";
 
-  let i = 0;
+          overlay.style.position = "fixed";
+          overlay.style.top = "0";
+          overlay.style.left = "0";
+          overlay.style.width = "100vw";
+          overlay.style.height = "100vh";
+          overlay.style.display = "flex";
+          overlay.style.justifyContent = "center";
+          overlay.style.alignItems = "center";
+          overlay.style.background = "rgba(10, 0, 20, 0.96)";
+          overlay.style.zIndex = "9999";
 
-  const typer = setInterval(() => {
-    container.textContent += text[i];
-    i++;
+          overlay.style.fontSize = "clamp(1.2rem, 5vw, 2rem)";
+          overlay.style.fontWeight = "bold";
+          overlay.style.textAlign = "center";
+          overlay.style.padding = "32px";
+          overlay.style.boxSizing = "border-box";
+          overlay.style.lineHeight = "1.4";
+          overlay.style.wordBreak = "break-word";
+          overlay.style.maxWidth = "90vw";
+          overlay.style.margin = "0 auto";
+          overlay.style.whiteSpace = "pre-line";
 
-    if (i >= text.length) {
-      clearInterval(typer);
+          document.body.appendChild(overlay);
+          typeMessage(overlay);
+        }
 
-      setTimeout(() => {
-        container.textContent += "\n\nLeave.";
-      }, 1200);
+        function typeMessage(container) {
+          const text = "You weren't supposed to find this.";
+          let i = 0;
 
-      setTimeout(() => {
-        container.style.transition = "opacity 0.8s ease";
-        container.style.opacity = "0";
-      }, 3200);
+          const typer = setInterval(() => {
+            container.textContent += text[i];
+            i++;
 
-      setTimeout(() => {
-        container.remove();
-        document.querySelector(".content").style.opacity = "1";
-      }, 4000);
-    }
-  }, 45);
-}
-})();
-</script>
+            if (i >= text.length) {
+              clearInterval(typer);
+
+              setTimeout(() => {
+                container.textContent += "\n\nLeave.";
+              }, 1200);
+
+              setTimeout(() => {
+                container.style.transition = "opacity 0.8s ease";
+                container.style.opacity = "0";
+              }, 3200);
+
+              setTimeout(() => {
+                container.remove();
+                document.querySelector(".content").style.opacity = "1";
+              }, 4000);
+            }
+          }, 45);
+        }
+      })();
+    </script>
   </body>
 </html>
