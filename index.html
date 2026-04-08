@@ -98,14 +98,7 @@
         It doesn’t need more.
       </p>
 
-      <button
-        onclick="
-          localStorage.setItem('understoodClicked', 'true');
-          this.innerText = 'Great';
-          setTimeout(() => this.style.opacity = '0', 1000);
-          setTimeout(() => this.style.visibility = 'hidden', 2100);
-        "
-      >
+      <button id="understood-btn">
         Understood
       </button>
     </div>
@@ -133,6 +126,16 @@
         let startX = 0;
         let startY = 0;
         let konamiActive = false;
+        let understoodClicked = false;
+
+        const understoodButton = document.getElementById("understood-btn");
+
+        understoodButton.addEventListener("click", function () {
+          understoodClicked = true;
+          this.innerText = "Great";
+          setTimeout(() => { this.style.opacity = "0"; }, 1000);
+          setTimeout(() => { this.style.visibility = "hidden"; }, 2100);
+        });
 
         function handleSequenceInput(input, sequence, getIndex, setIndex) {
           const currentIndex = getIndex();
@@ -219,10 +222,9 @@
         }, { passive: true });
 
         function activate() {
-          const understood = localStorage.getItem("understoodClicked") === "true";
           konamiActive = true;
 
-          if (understood) {
+          if (understoodClicked) {
             window.location.href = "/kafka.html";
             return;
           }
