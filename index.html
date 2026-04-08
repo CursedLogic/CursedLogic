@@ -31,6 +31,11 @@
         transition: background-color 0.45s ease, color 0.45s ease;
       }
 
+      body.cursed-state {
+        background-color: #0a0014;
+        color: #c084fc;
+      }
+
       .content {
         max-width: 600px;
         width: 90%;
@@ -42,28 +47,77 @@
         transition: opacity 0.35s ease;
       }
 
-      .hidden-seed {
+      .message-area p {
+        margin: 0 0 1rem;
+      }
+
+      .char-seed {
+        display: inline;
         transition:
-          color 0.35s ease,
-          text-shadow 0.35s ease,
-          opacity 0.35s ease;
+          color 0.25s ease,
+          text-shadow 0.25s ease,
+          opacity 0.25s ease;
       }
 
-      .hidden-seed.revealed {
-        color: #ff4d6d;
+      .char-seed.target {
+        color: #ff5c7a;
         text-shadow:
-          0 0 6px rgba(255, 77, 109, 0.55),
-          0 0 14px rgba(255, 77, 109, 0.25);
+          0 0 5px rgba(255, 92, 122, 0.55),
+          0 0 12px rgba(255, 92, 122, 0.3);
       }
 
-      .hidden-seed.space-seed {
-        display: inline-block;
-        width: 0.38em;
+      .decode-wrap {
+        margin-top: 28px;
+        min-height: 56px;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.45s ease, transform 0.45s ease;
       }
 
-      .cursed-state {
-        background-color: #0a0014;
-        color: #c084fc;
+      .decode-wrap.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .decode-label {
+        font-size: 0.8rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        opacity: 0.6;
+        margin-bottom: 10px;
+      }
+
+      .decode-line {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 6px;
+      }
+
+      .decode-slot {
+        min-width: 0.85em;
+        padding-bottom: 3px;
+        border-bottom: 1px solid rgba(192, 132, 252, 0.35);
+        color: rgba(224, 224, 224, 0.45);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        transition:
+          color 0.25s ease,
+          border-color 0.25s ease,
+          text-shadow 0.25s ease;
+      }
+
+      .decode-slot.filled {
+        color: #ff5c7a;
+        border-color: rgba(255, 92, 122, 0.55);
+        text-shadow:
+          0 0 5px rgba(255, 92, 122, 0.55),
+          0 0 12px rgba(255, 92, 122, 0.22);
+      }
+
+      .decode-space {
+        width: 14px;
       }
 
       button {
@@ -85,6 +139,10 @@
       @media (max-width: 768px) {
         .content {
           font-size: 1rem;
+        }
+
+        .decode-line {
+          gap: 7px 5px;
         }
       }
     </style>
@@ -129,6 +187,11 @@
         </p>
       </div>
 
+      <div class="decode-wrap" id="decode-wrap">
+        <div class="decode-label">Decoded</div>
+        <div class="decode-line" id="decode-line"></div>
+      </div>
+
       <button id="understood-btn">Understood</button>
     </div>
 
@@ -150,7 +213,8 @@
           "tap", "tap"
         ];
 
-        const hiddenPhrase = "Cursed is watching";
+        const secretPhrase = "Cursed is watching";
+        const glitchChars = "!@#$%^&*()_+-=[]{}<>?/\\|~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
         let keyIndex = 0;
         let touchIndex = 0;
@@ -159,10 +223,13 @@
         let konamiActive = false;
         let understoodClicked = false;
         let revealRunning = false;
+        let revealComplete = false;
 
         const understoodButton = document.getElementById("understood-btn");
         const hiddenDot = document.getElementById("hidden-dot");
         const messageArea = document.getElementById("message-area");
+        const decodeWrap = document.getElementById("decode-wrap");
+        const decodeLine = document.getElementById("decode-line");
 
         understoodButton.addEventListener("click", function () {
           understoodClicked = true;
@@ -170,6 +237,14 @@
           setTimeout(() => { this.style.opacity = "0"; }, 1000);
           setTimeout(() => { this.style.visibility = "hidden"; }, 2100);
         });
+
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function randomGlitchChar() {
+          return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+        }
 
         function handleSequenceInput(input, sequence, getIndex, setIndex) {
           const currentIndex = getIndex();
@@ -196,24 +271,20 @@
           window.location.href = "/friends/friends.html";
         }
 
-        function sleep(ms) {
-          return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function collectEligibleTextNodes(root) {
+        function collectTextNodes(root) {
           const walker = document.createTreeWalker(
             root,
             NodeFilter.SHOW_TEXT,
             {
               acceptNode(node) {
-                if (!node.nodeValue || !node.nodeValue.trim()) {
+                if (!node.nodeValue || !node.nodeValue.length) {
                   return NodeFilter.FILTER_REJECT;
                 }
 
                 const parent = node.parentElement;
                 if (!parent) return NodeFilter.FILTER_REJECT;
-                if (parent.id === "hidden-dot") return NodeFilter.FILTER_REJECT;
                 if (parent.closest("button")) return NodeFilter.FILTER_REJECT;
+                if (parent.id === "hidden-dot") return NodeFilter.FILTER_REJECT;
 
                 return NodeFilter.FILTER_ACCEPT;
               }
@@ -228,118 +299,157 @@
           return nodes;
         }
 
-        function installHiddenPhrase(root, phrase) {
-          const textNodes = collectEligibleTextNodes(root);
-          const targets = [];
-          const visibleChars = [];
+        function wrapCharacters(root) {
+          const textNodes = collectTextNodes(root);
+          const wrappedChars = [];
 
           textNodes.forEach(node => {
-            const value = node.nodeValue;
-            for (let i = 0; i < value.length; i++) {
-              const ch = value[i];
-              if (ch !== "\n" && ch !== "\r" && ch !== "\t") {
-                visibleChars.push({ node, index: i, char: ch });
-              }
-            }
-          });
-
-          const needed = phrase.length;
-          const usable = visibleChars.filter(item => item.char !== "");
-          const step = Math.max(2, Math.floor(usable.length / (needed + 3)));
-
-          let cursor = Math.floor(step * 0.8);
-
-          for (let i = 0; i < phrase.length; i++) {
-            const targetChar = phrase[i];
-
-            while (cursor < usable.length && usable[cursor].char === "") {
-              cursor++;
-            }
-
-            if (cursor >= usable.length) break;
-
-            targets.push({
-              node: usable[cursor].node,
-              index: usable[cursor].index,
-              replacement: targetChar
-            });
-
-            cursor += step;
-          }
-
-          // Group replacements by node so we can safely rebuild each text node once.
-          const byNode = new Map();
-          targets.forEach(target => {
-            if (!byNode.has(target.node)) byNode.set(target.node, []);
-            byNode.get(target.node).push(target);
-          });
-
-          const seeds = [];
-
-          byNode.forEach((replacements, node) => {
-            replacements.sort((a, b) => a.index - b.index);
-
-            const frag = document.createDocumentFragment();
             const text = node.nodeValue;
-            let last = 0;
+            const frag = document.createDocumentFragment();
 
-            replacements.forEach(rep => {
-              if (rep.index > last) {
-                frag.appendChild(document.createTextNode(text.slice(last, rep.index)));
+            for (const ch of text) {
+              if (ch === "\n") {
+                frag.appendChild(document.createTextNode(ch));
+                continue;
               }
 
               const span = document.createElement("span");
-              span.className = "hidden-seed";
-              span.dataset.final = rep.replacement === " " ? "&nbsp;" : rep.replacement;
-
-              if (rep.replacement === " ") {
-                span.classList.add("space-seed");
-                span.innerHTML = "&nbsp;";
-              } else {
-                span.textContent = text[rep.index];
-              }
-
+              span.className = "char-seed";
+              span.textContent = ch;
+              span.dataset.original = ch;
               frag.appendChild(span);
-              seeds.push(span);
-              last = rep.index + 1;
-            });
 
-            if (last < text.length) {
-              frag.appendChild(document.createTextNode(text.slice(last)));
+              wrappedChars.push({
+                char: ch,
+                lower: ch.toLowerCase(),
+                span
+              });
             }
 
             node.parentNode.replaceChild(frag, node);
           });
 
-          return seeds;
+          return wrappedChars;
         }
 
-        const hiddenSeeds = installHiddenPhrase(messageArea, hiddenPhrase);
+        const wrappedChars = wrapCharacters(messageArea);
 
-        async function revealHiddenPhrase() {
-          if (revealRunning) return;
+        function findSourceSpans(chars, phrase) {
+          const targets = [];
+          let searchStart = 0;
+
+          for (const wantedChar of phrase.toLowerCase()) {
+            if (wantedChar === " ") {
+              targets.push({ type: "space" });
+              continue;
+            }
+
+            let foundIndex = -1;
+
+            for (let i = searchStart; i < chars.length; i++) {
+              if (chars[i].lower === wantedChar) {
+                foundIndex = i;
+                break;
+              }
+            }
+
+            if (foundIndex === -1) {
+              for (let i = 0; i < searchStart; i++) {
+                if (chars[i].lower === wantedChar) {
+                  foundIndex = i;
+                  break;
+                }
+              }
+            }
+
+            if (foundIndex === -1) {
+              throw new Error(`Could not find required character: ${wantedChar}`);
+            }
+
+            targets.push({
+              type: "char",
+              letter: wantedChar,
+              span: chars[foundIndex].span
+            });
+
+            searchStart = foundIndex + 1;
+          }
+
+          return targets;
+        }
+
+        const sourceTargets = findSourceSpans(wrappedChars, secretPhrase);
+
+        function buildDecodeLine(phrase) {
+          decodeLine.innerHTML = "";
+          const slots = [];
+
+          for (const ch of phrase) {
+            if (ch === " ") {
+              const spacer = document.createElement("span");
+              spacer.className = "decode-space";
+              decodeLine.appendChild(spacer);
+              slots.push(null);
+            } else {
+              const slot = document.createElement("span");
+              slot.className = "decode-slot";
+              slot.textContent = "_";
+              decodeLine.appendChild(slot);
+              slots.push(slot);
+            }
+          }
+
+          return slots;
+        }
+
+        const decodeSlots = buildDecodeLine(secretPhrase);
+
+        async function glitchRevealSource(span, finalChar) {
+          const original = span.dataset.original;
+
+          for (let i = 0; i < 9; i++) {
+            span.textContent = randomGlitchChar();
+            await sleep(65);
+          }
+
+          span.textContent = finalChar.toUpperCase() === original.toUpperCase() ? original : original;
+          span.classList.add("target");
+        }
+
+        async function revealHiddenMessage() {
+          if (revealRunning || revealComplete) return;
+
           revealRunning = true;
+          konamiActive = true;
 
           document.body.classList.add("cursed-state");
+          decodeWrap.classList.add("show");
 
           hiddenDot.onclick = handlePeriodRoute;
           hiddenDot.style.color = "#c084fc";
           hiddenDot.style.cursor = "pointer";
 
-          for (let i = 0; i < hiddenSeeds.length; i++) {
-            const seed = hiddenSeeds[i];
+          for (let i = 0; i < sourceTargets.length; i++) {
+            const target = sourceTargets[i];
 
-            if (seed.classList.contains("space-seed")) {
-              seed.classList.add("revealed");
-            } else {
-              seed.textContent = seed.dataset.final;
-              seed.classList.add("revealed");
+            if (target.type === "space") {
+              await sleep(180);
+              continue;
             }
 
-            await sleep(85);
+            await glitchRevealSource(target.span, target.letter);
+
+            const slot = decodeSlots[i];
+            if (slot) {
+              slot.textContent = secretPhrase[i];
+              slot.classList.add("filled");
+            }
+
+            await sleep(170);
           }
 
           revealRunning = false;
+          revealComplete = true;
         }
 
         document.addEventListener("keydown", (e) => {
@@ -407,10 +517,9 @@
             return;
           }
 
-          if (konamiActive || revealRunning) return;
+          if (revealRunning || revealComplete) return;
 
-          konamiActive = true;
-          revealHiddenPhrase();
+          revealHiddenMessage();
         }
       })();
     </script>
