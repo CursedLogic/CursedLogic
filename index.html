@@ -23,11 +23,12 @@
         justify-content: center;
         align-items: center;
         margin: 0;
-        height: 100vh;
+        min-height: 100vh;
         background-color: #1e1e1e;
         color: #e0e0e0;
         padding: 20px;
         text-align: center;
+        transition: background-color 0.5s ease, color 0.5s ease;
       }
 
       .content {
@@ -35,6 +36,33 @@
         width: 90%;
         font-size: 1.2rem;
         line-height: 1.6;
+        transition: opacity 0.4s ease;
+      }
+
+      .glitching {
+        text-shadow:
+          0 0 4px rgba(192, 132, 252, 0.20),
+          0 0 10px rgba(192, 132, 252, 0.12);
+      }
+
+      .corrupt-line {
+        display: block;
+        min-height: 1.6em;
+        transition: opacity 0.25s ease, color 0.25s ease;
+      }
+
+      .hidden-message {
+        margin-top: 26px;
+        color: #c084fc;
+        opacity: 0;
+        white-space: pre-line;
+        line-height: 1.8;
+        letter-spacing: 0.03em;
+        transition: opacity 0.8s ease;
+      }
+
+      .hidden-message.show {
+        opacity: 0.92;
       }
 
       button {
@@ -62,32 +90,32 @@
   </head>
 
   <body>
-    <div class="content">
-      <p><strong>You asked why I'm quiet.</strong></p>
+    <div class="content" id="content">
+      <p class="corrupt-line"><strong>You asked why I'm quiet.</strong></p>
 
-      <p>
+      <p class="corrupt-line">
         I speak when I have something to say. <br />
         Not before. Not for show.
       </p>
 
-      <p>
+      <p class="corrupt-line">
         I keep to myself. That’s how I work. That’s how I live. <br />
         It’s not a phase, and it’s not up for review.
       </p>
 
-      <p>
+      <p class="corrupt-line">
         There’s no performance here. No punchline coming. <br />
         This isn’t a bit.
       </p>
 
-      <p>
+      <p class="corrupt-line">
         I keep my circle small on purpose. <br />
         But I’m not closed off. <br />
         If I seem quiet, I’m just waiting to see if it’s worth opening up. <br />
         For the right people, I’m not quiet at all.
       </p>
 
-      <p>
+      <p class="corrupt-line">
         You asked<span
           id="hidden-dot"
           onclick="location.href='/friends/friends.html'"
@@ -98,9 +126,9 @@
         It doesn’t need more.
       </p>
 
-      <button id="understood-btn">
-        Understood
-      </button>
+      <button id="understood-btn">Understood</button>
+
+      <div class="hidden-message" id="hidden-message"></div>
     </div>
 
     <script>
@@ -121,14 +149,24 @@
           "tap", "tap"
         ];
 
+        const corruptionChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:<>?/\\|~";
+        const finalHiddenText = "You weren't supposed to find this.\n\nAnd yet you kept going.";
+
         let keyIndex = 0;
         let touchIndex = 0;
         let startX = 0;
         let startY = 0;
         let konamiActive = false;
         let understoodClicked = false;
+        let corruptionRunning = false;
 
+        const content = document.getElementById("content");
+        const hiddenMessage = document.getElementById("hidden-message");
+        const corruptLines = Array.from(document.querySelectorAll(".corrupt-line"));
         const understoodButton = document.getElementById("understood-btn");
+        const hiddenDot = document.getElementById("hidden-dot");
+
+        const originalLineHTML = corruptLines.map(line => line.innerHTML);
 
         understoodButton.addEventListener("click", function () {
           understoodClicked = true;
@@ -160,6 +198,114 @@
           }
 
           window.location.href = "/friends/friends.html";
+        }
+
+        function randomChar() {
+          return corruptionChars[Math.floor(Math.random() * corruptionChars.length)];
+        }
+
+        function scrambleTextPreserveBreaks(sourceText, intensity = 0.65) {
+          let output = "";
+
+          for (const char of sourceText) {
+            if (char === "\n") {
+              output += "\n";
+            } else if (char === " ") {
+              output += " ";
+            } else if (Math.random() < intensity) {
+              output += randomChar();
+            } else {
+              output += char;
+            }
+          }
+
+          return output;
+        }
+
+        function lineTextFromHTML(html) {
+          return html
+            .replace(/<br\s*\/?>/gi, "\n")
+            .replace(/<[^>]+>/g, "");
+        }
+
+        async function runCorruptionSequence() {
+          if (corruptionRunning) return;
+          corruptionRunning = true;
+
+          bodyShiftToHiddenState();
+          content.classList.add("glitching");
+          hiddenDot.onclick = handlePeriodRoute;
+          hiddenDot.style.color = "#c084fc";
+          hiddenDot.style.cursor = "pointer";
+
+          for (let burst = 0; burst < 10; burst++) {
+            corruptLines.forEach((line, index) => {
+              const baseText = lineTextFromHTML(originalLineHTML[index]);
+              const scrambled = scrambleTextPreserveBreaks(baseText, 0.82 - burst * 0.04);
+              line.innerHTML = scrambled.replace(/\n/g, "<br>");
+            });
+
+            await sleep(70);
+          }
+
+          const replacementLines = [
+            "You asked why I'm quiet.",
+            "Some things stay buried until they are looked for correctly.",
+            "You were not meant to see this version of the page.",
+            "Most people stop at the surface.",
+            "You did not.",
+            "The page remembers."
+          ];
+
+          for (let i = 0; i < corruptLines.length; i++) {
+            const target = replacementLines[i] || "";
+            await revealLine(corruptLines[i], target);
+          }
+
+          hiddenMessage.textContent = "";
+          hiddenMessage.classList.add("show");
+          await typeHiddenMessage(finalHiddenText, hiddenMessage, 34);
+
+          corruptionRunning = false;
+        }
+
+        async function revealLine(element, finalText) {
+          const steps = 9;
+
+          for (let step = 0; step < steps; step++) {
+            let output = "";
+
+            for (let i = 0; i < finalText.length; i++) {
+              if (finalText[i] === " ") {
+                output += " ";
+              } else if (Math.random() < step / steps) {
+                output += finalText[i];
+              } else {
+                output += randomChar();
+              }
+            }
+
+            element.innerHTML = output.replace(/\n/g, "<br>");
+            await sleep(55);
+          }
+
+          element.innerHTML = finalText.replace(/\n/g, "<br>");
+        }
+
+        async function typeHiddenMessage(text, container, speed) {
+          for (let i = 0; i < text.length; i++) {
+            container.textContent += text[i];
+            await sleep(speed);
+          }
+        }
+
+        function bodyShiftToHiddenState() {
+          document.body.style.backgroundColor = "#0a0014";
+          document.body.style.color = "#c084fc";
+        }
+
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
         }
 
         document.addEventListener("keydown", (e) => {
@@ -222,90 +368,15 @@
         }, { passive: true });
 
         function activate() {
-          konamiActive = true;
-
           if (understoodClicked) {
             window.location.href = "/kafka.html";
             return;
           }
 
-          if (document.getElementById("cursed-overlay")) return;
+          if (konamiActive || corruptionRunning) return;
 
-          const content = document.querySelector(".content");
-          content.style.transition = "opacity 0.4s ease";
-          content.style.opacity = "0";
-
-          setTimeout(() => {
-            document.body.style.background = "#0a0014";
-            document.body.style.color = "#c084fc";
-
-            const dot = document.getElementById("hidden-dot");
-            if (dot) {
-              dot.onclick = handlePeriodRoute;
-              dot.style.color = "#c084fc";
-              dot.style.cursor = "pointer";
-            }
-
-            createOverlay();
-          }, 400);
-        }
-
-        function createOverlay() {
-          const overlay = document.createElement("div");
-          overlay.id = "cursed-overlay";
-
-          overlay.style.position = "fixed";
-          overlay.style.top = "0";
-          overlay.style.left = "0";
-          overlay.style.width = "100vw";
-          overlay.style.height = "100vh";
-          overlay.style.display = "flex";
-          overlay.style.justifyContent = "center";
-          overlay.style.alignItems = "center";
-          overlay.style.background = "rgba(10, 0, 20, 0.96)";
-          overlay.style.zIndex = "9999";
-
-          overlay.style.fontSize = "clamp(1.2rem, 5vw, 2rem)";
-          overlay.style.fontWeight = "bold";
-          overlay.style.textAlign = "center";
-          overlay.style.padding = "32px";
-          overlay.style.boxSizing = "border-box";
-          overlay.style.lineHeight = "1.4";
-          overlay.style.wordBreak = "break-word";
-          overlay.style.maxWidth = "90vw";
-          overlay.style.margin = "0 auto";
-          overlay.style.whiteSpace = "pre-line";
-
-          document.body.appendChild(overlay);
-          typeMessage(overlay);
-        }
-
-        function typeMessage(container) {
-          const text = "You weren't supposed to find this.";
-          let i = 0;
-
-          const typer = setInterval(() => {
-            container.textContent += text[i];
-            i++;
-
-            if (i >= text.length) {
-              clearInterval(typer);
-
-              setTimeout(() => {
-                container.textContent += "\n\nLeave.";
-              }, 1200);
-
-              setTimeout(() => {
-                container.style.transition = "opacity 0.8s ease";
-                container.style.opacity = "0";
-              }, 3200);
-
-              setTimeout(() => {
-                container.remove();
-                document.querySelector(".content").style.opacity = "1";
-              }, 4000);
-            }
-          }, 45);
+          konamiActive = true;
+          runCorruptionSequence();
         }
       })();
     </script>
