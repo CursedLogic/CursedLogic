@@ -78,12 +78,41 @@
       cursor: pointer;
       transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
       user-select: none;
+      margin-right: 10px;
     }
 
     .continue:hover {
       background: rgba(192, 132, 252, 0.08);
       box-shadow: 0 0 14px rgba(192, 132, 252, 0.18);
       transform: translateY(-1px);
+    }
+
+    .back {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 8px 14px;
+      border: 1px solid rgba(192, 132, 252, 0.25);
+      color: rgba(192, 132, 252, 0.72);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      transition: opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .back:hover {
+      opacity: 1;
+      border-color: rgba(192, 132, 252, 0.5);
+      background: rgba(192, 132, 252, 0.08);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     @media (max-width: 600px) {
@@ -98,6 +127,10 @@
 
       .wrap {
         padding: 32px 18px;
+      }
+
+      .continue {
+        margin-right: 0;
       }
     }
   </style>
@@ -119,47 +152,53 @@
       <img src="images/star.svg" class="icon" id="icon4" alt="Star">
     </div>
 
-    <a href="minigame.html" class="continue">Continue</a>
+    <div class="actions">
+      <a href="minigame.html" class="continue">Continue</a>
+      <a href="index.html" class="back">Back to Start</a>
+    </div>
   </div>
 
   <script>
-  const icons = [
-    document.getElementById("icon1"),
-    document.getElementById("icon2"),
-    document.getElementById("icon3"),
-    document.getElementById("icon4")
-  ];
+    const icons = [
+      document.getElementById("icon1"),
+      document.getElementById("icon2"),
+      document.getElementById("icon3"),
+      document.getElementById("icon4")
+    ];
 
-  const glowDuration = 2500;
-  const gapBetween = 1200;
-  const cyclePause = 20000;
-  const initialDelay = 10000; // 10 seconds before first glow
+    const glowDuration = 2500;
+    const gapBetween = 1200;
+    const cyclePause = 20000;
+    const initialDelay = 10000;
 
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  async function runCycle() {
-    // Initial delay BEFORE anything happens
-    await sleep(initialDelay);
-
-    while (true) {
-      for (let i = 0; i < icons.length; i++) {
-        icons[i].classList.add("active");
-
-        await sleep(glowDuration);
-
-        icons[i].classList.remove("active");
-
-        await sleep(gapBetween);
-      }
-
-      await sleep(cyclePause);
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
-  }
 
-  runCycle();
-</script>
+    async function runCycle() {
+      await sleep(initialDelay);
+
+      while (true) {
+        for (let i = 0; i < icons.length; i++) {
+          icons[i].classList.add("active");
+          await sleep(glowDuration);
+
+          icons[i].classList.remove("active");
+          await sleep(gapBetween);
+        }
+
+        await sleep(cyclePause);
+      }
+    }
+
+    runCycle();
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
 
 </body>
 </html>
