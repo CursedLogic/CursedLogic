@@ -125,21 +125,24 @@
       cursor: default;
     }
 
-    .wrap.success {
-      border-color: rgba(120, 255, 160, 0.35);
-      box-shadow: 0 0 24px rgba(120, 255, 160, 0.10);
+    .back {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 14px;
+      border: 1px solid rgba(192, 132, 252, 0.25);
+      color: rgba(192, 132, 252, 0.72);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      transition: opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease;
     }
 
-    .wrap.failure {
-      border-color: rgba(255, 120, 120, 0.30);
-      box-shadow: 0 0 24px rgba(255, 120, 120, 0.10);
-    }
-
-    .status {
-      min-height: 28px;
-      font-size: 1rem;
-      letter-spacing: 0.04em;
-      opacity: 0.9;
+    .back:hover {
+      opacity: 1;
+      border-color: rgba(192, 132, 252, 0.5);
+      background: rgba(192, 132, 252, 0.08);
     }
 
     @media (max-width: 600px) {
@@ -181,7 +184,7 @@
       Some things only open in the order they were shown.
     </div>
 
-    <div class="sequence" id="sequenceSlots">
+    <div class="sequence">
       <div class="slot" id="slot0"></div>
       <div class="slot" id="slot1"></div>
       <div class="slot" id="slot2"></div>
@@ -206,7 +209,7 @@
       </button>
     </div>
 
-    <div class="status" id="status"></div>
+    <a href="index.html" class="back">Back to Start</a>
   </div>
 
   <script>
@@ -214,8 +217,6 @@
     const playerSequence = [];
 
     const buttons = document.querySelectorAll(".icon-button");
-    const status = document.getElementById("status");
-    const wrap = document.getElementById("gameWrap");
     const slots = [
       document.getElementById("slot0"),
       document.getElementById("slot1"),
@@ -240,34 +241,14 @@
       });
     }
 
-    function resetAttempt() {
-      playerSequence.length = 0;
-      status.textContent = "";
-      wrap.classList.remove("failure");
-      buttons.forEach(button => {
-        button.classList.remove("selected");
-        button.disabled = false;
-      });
-      updateSlots();
-      locked = false;
-    }
-
     function handleSuccess() {
       locked = true;
-      wrap.classList.remove("failure");
-      wrap.classList.add("success");
-      status.textContent = "You got it.";
+      window.location.href = "steam.html";
     }
 
     function handleFailure() {
       locked = true;
-      wrap.classList.remove("success");
-      wrap.classList.add("failure");
-      status.textContent = "Wrong order.";
-
-      setTimeout(() => {
-        resetAttempt();
-      }, 1000);
+      window.location.href = "wubba.html";
     }
 
     buttons.forEach(button => {
@@ -285,7 +266,9 @@
         updateSlots();
 
         if (playerSequence.length === 4) {
-          const isCorrect = playerSequence.every((value, index) => value === correctSequence[index]);
+          const isCorrect = playerSequence.every(
+            (value, index) => value === correctSequence[index]
+          );
 
           if (isCorrect) {
             handleSuccess();
@@ -294,6 +277,12 @@
           }
         }
       });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        window.location.href = "index.html";
+      }
     });
   </script>
 
