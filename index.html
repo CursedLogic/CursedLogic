@@ -405,52 +405,52 @@
         const decodeSlots = buildDecodeLine(secretPhrase);
 
         async function glitchRevealSource(span, finalChar) {
-          const original = span.dataset.original;
+  const original = span.dataset.original;
 
-          for (let i = 0; i < 9; i++) {
-            span.textContent = randomGlitchChar();
-            await sleep(65);
-          }
+  for (let i = 0; i < 9; i++) {
+    span.textContent = randomGlitchChar();
+    await sleep(120);
+  }
 
-          span.textContent = finalChar.toUpperCase() === original.toUpperCase() ? original : original;
-          span.classList.add("target");
-        }
+  span.textContent = original;
+  span.classList.add("target");
+}
 
-        async function revealHiddenMessage() {
-          if (revealRunning || revealComplete) return;
+async function revealHiddenMessage() {
+  if (revealRunning || revealComplete) return;
 
-          revealRunning = true;
-          konamiActive = true;
+  revealRunning = true;
+  konamiActive = true;
 
-          document.body.classList.add("cursed-state");
-          decodeWrap.classList.add("show");
+  document.body.classList.add("cursed-state");
+  decodeWrap.classList.add("show");
 
-          hiddenDot.onclick = handlePeriodRoute;
-          hiddenDot.style.color = "#c084fc";
-          hiddenDot.style.cursor = "pointer";
+  hiddenDot.onclick = handlePeriodRoute;
+  hiddenDot.style.color = "#c084fc";
+  hiddenDot.style.cursor = "pointer";
 
-          for (let i = 0; i < sourceTargets.length; i++) {
-            const target = sourceTargets[i];
+  for (let i = 0; i < sourceTargets.length; i++) {
+    const target = sourceTargets[i];
 
-            if (target.type === "space") {
-              await sleep(180);
-              continue;
-            }
+    if (target.type === "space") {
+      await sleep(320);
+      continue;
+    }
 
-            await glitchRevealSource(target.span, target.letter);
+    await glitchRevealSource(target.span, target.letter);
 
-            const slot = decodeSlots[i];
-            if (slot) {
-              slot.textContent = secretPhrase[i];
-              slot.classList.add("filled");
-            }
+    const slot = decodeSlots[i];
+    if (slot) {
+      slot.textContent = secretPhrase[i];
+      slot.classList.add("filled");
+    }
 
-            await sleep(170);
-          }
+    await sleep(300);
+  }
 
-          revealRunning = false;
-          revealComplete = true;
-        }
+  revealRunning = false;
+  revealComplete = true;
+}
 
         document.addEventListener("keydown", (e) => {
           const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
