@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>...</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #05000a;
+      color: #c084fc;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      padding: 24px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .wrap {
+      max-width: 700px;
+      width: 100%;
+      padding: 48px 24px;
+      background: rgba(10, 0, 20, 0.70);
+      border: 1px solid rgba(192, 132, 252, 0.18);
+      box-shadow: 0 0 22px rgba(192, 132, 252, 0.08);
+      box-sizing: border-box;
+    }
+
+    .title {
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .text {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      line-height: 1.8;
+      opacity: 0.9;
+      margin-bottom: 30px;
+    }
+
+    .username {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      letter-spacing: 0.1em;
+      margin-bottom: 34px;
+      color: #e9d5ff;
+      text-shadow: 0 0 10px rgba(192, 132, 252, 0.25);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: inline-block;
+      padding: 12px 22px;
+      border: 1px solid rgba(192, 132, 252, 0.5);
+      color: #c084fc;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: rgba(192, 132, 252, 0.08);
+      box-shadow: 0 0 14px rgba(192, 132, 252, 0.18);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 600px) {
+      .wrap {
+        padding: 36px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="title">Congratulations</div>
+
+    <div class="text">
+      You found it.<br>
+      If you want, come hit me up on Steam and play a game.
+    </div>
+
+    <div class="username">
+      CursedLogic
+    </div>
+
+    <div class="actions">
+      <a href="index.html" class="action-btn">Back to Start</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+
+</body>
+</html>
