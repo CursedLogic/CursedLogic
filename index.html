@@ -1,260 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WNP94WVB22"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-WNP94WVB22');
-    </script>
+<head>
+  <meta charset="UTF-8" />
+  <title>You asked.</title>
 
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>You asked.</title>
-    <link rel="icon" type="image/png" href="/images/favicon.png" />
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #1e1e1e;
+      color: #e0e0e0;
+      text-align: center;
+      padding: 20px;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
 
-    <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
-        min-height: 100vh;
-        background-color: #1e1e1e;
-        color: #e0e0e0;
-        padding: 20px;
-        text-align: center;
-        transition: background-color 0.45s ease, color 0.45s ease;
+    body.cursed {
+      background: #0a0014;
+      color: #c084fc;
+    }
+
+    .content {
+      max-width: 600px;
+      line-height: 1.6;
+      font-size: 1.2rem;
+    }
+
+    .target {
+      color: #ff5c7a;
+      text-shadow: 0 0 6px rgba(255, 92, 122, 0.5);
+    }
+
+    .decode {
+      margin-top: 30px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .decode.show {
+      opacity: 1;
+    }
+
+    .slot {
+      display: inline-block;
+      min-width: 12px;
+      border-bottom: 1px solid #aaa;
+      margin: 2px;
+    }
+
+    .slot.filled {
+      color: #ff5c7a;
+      border-color: #ff5c7a;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="content" id="content">
+
+  <p><strong>You asked why I'm quiet.</strong></p>
+
+  <p>
+    I speak when I have something to say.<br>
+    Not before. Not for show.
+  </p>
+
+  <p>
+    I keep to myself. That’s how I work.<br>
+    It’s not a phase.
+  </p>
+
+  <p>This isn’t a bit.</p>
+
+  <p>If I seem quiet, I’m just waiting.</p>
+
+  <p>
+    You asked<span id="dot">.</span> This is the answer.
+  </p>
+
+  <div class="decode" id="decode"></div>
+
+</div>
+
+<script>
+(() => {
+
+const phrase = "cursed is watching";
+const glitchChars = "!@#$%^&*ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+let konamiActive = false;
+let understoodClicked = false;
+
+// ----------------------
+// FIXED ARROW KEYS BLOCK
+// ----------------------
+document.addEventListener("keydown", e => {
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+    e.preventDefault();
+  }
+});
+
+// ----------------------
+// PERIOD LOGIC
+// ----------------------
+document.addEventListener("keydown", e => {
+  if (e.key === ".") {
+    if (konamiActive) location.href = "/clue.html";
+    else location.href = "/friends/friends.html";
+  }
+});
+
+// ----------------------
+// KONAMI
+// ----------------------
+const code = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+let index = 0;
+
+document.addEventListener("keydown", e => {
+  if (e.key === code[index]) {
+    index++;
+    if (index === code.length) {
+      activate();
+      index = 0;
+    }
+  } else {
+    index = 0;
+  }
+});
+
+// ----------------------
+// CORE FIX: TARGET ONLY REAL LETTERS
+// ----------------------
+function findTargets() {
+
+  const walker = document.createTreeWalker(
+    document.getElementById("content"),
+    NodeFilter.SHOW_TEXT
+  );
+
+  const matches = [];
+  const chars = [];
+
+  let node;
+  while (node = walker.nextNode()) {
+    if (!node.nodeValue.trim()) continue;
+
+    for (let i = 0; i < node.nodeValue.length; i++) {
+      chars.push({node, index:i, char: node.nodeValue[i].toLowerCase()});
+    }
+  }
+
+  let pointer = 0;
+
+  for (let letter of phrase) {
+
+    if (letter === " ") {
+      matches.push(null);
+      continue;
+    }
+
+    for (let i = pointer; i < chars.length; i++) {
+      if (chars[i].char === letter) {
+
+        matches.push(chars[i]);
+        pointer = i + 1;
+        break;
       }
+    }
+  }
 
-      body.cursed-state {
-        background-color: #0a0014;
-        color: #c084fc;
-      }
+  return matches;
+}
 
-      .content {
-        max-width: 600px;
-        width: 90%;
-        font-size: 1.2rem;
-        line-height: 1.6;
-      }
+// ----------------------
+// APPLY TARGETS (ONLY MODIFY THOSE LETTERS)
+// ----------------------
+function applyTargets(matches) {
 
-      .char-seed {
-        transition: color 0.25s ease, text-shadow 0.25s ease;
-      }
+  const grouped = new Map();
 
-      .char-seed.target {
-        color: #ff5c7a;
-        text-shadow:
-          0 0 5px rgba(255, 92, 122, 0.55),
-          0 0 12px rgba(255, 92, 122, 0.3);
-      }
+  matches.forEach(m => {
+    if (!m) return;
 
-      .decode-wrap {
-        margin-top: 28px;
-        opacity: 0;
-        transform: translateY(8px);
-        transition: opacity 0.45s ease, transform 0.45s ease;
-      }
+    if (!grouped.has(m.node)) grouped.set(m.node, []);
+    grouped.get(m.node).push(m.index);
+  });
 
-      .decode-wrap.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
+  const spans = [];
 
-      .decode-line {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
+  grouped.forEach((indexes, node) => {
 
-      .decode-slot {
-        min-width: 0.85em;
-        border-bottom: 1px solid rgba(192, 132, 252, 0.35);
-        color: rgba(224, 224, 224, 0.45);
-        transition: color 0.25s ease;
-      }
+    const text = node.nodeValue;
+    const frag = document.createDocumentFragment();
 
-      .decode-slot.filled {
-        color: #ff5c7a;
-      }
+    let last = 0;
 
-      button {
-        margin-top: 30px;
-        padding: 10px 20px;
-        background-color: #333;
-        color: white;
-        border-radius: 6px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
+    indexes.sort((a,b)=>a-b);
 
-  <body>
-    <div class="content" id="message-area">
-      <p><strong>You asked why I'm quiet.</strong></p>
-      <p>I speak when I have something to say.<br>Not before. Not for show.</p>
-      <p>I keep to myself. That’s how I work.<br>It’s not a phase.</p>
-      <p>This isn’t a bit.</p>
-      <p>If I seem quiet, I’m just waiting.</p>
+    indexes.forEach(i => {
 
-      <p>
-        You asked<span id="hidden-dot">.</span>
-        This is the answer.
-      </p>
+      frag.appendChild(document.createTextNode(text.slice(last, i)));
 
-      <div class="decode-wrap" id="decode-wrap">
-        <div class="decode-line" id="decode-line"></div>
-      </div>
+      const span = document.createElement("span");
+      span.textContent = text[i];
+      frag.appendChild(span);
 
-      <button id="understood-btn">Understood</button>
-    </div>
+      spans.push(span);
+      last = i + 1;
+    });
 
-    <script>
-      (() => {
-        const secretPhrase = "Cursed is watching";
-        const glitchChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    frag.appendChild(document.createTextNode(text.slice(last)));
 
-        let konamiActive = false;
-        let understoodClicked = false;
+    node.parentNode.replaceChild(frag, node);
+  });
 
-        const messageArea = document.getElementById("message-area");
-        const decodeWrap = document.getElementById("decode-wrap");
-        const decodeLine = document.getElementById("decode-line");
+  return spans;
+}
 
-        function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-        function randomChar(){ return glitchChars[Math.floor(Math.random()*glitchChars.length)]; }
+// ----------------------
+// DECODE LINE
+// ----------------------
+function buildDecode() {
 
-        function wrapText(){
-          const walker = document.createTreeWalker(messageArea, NodeFilter.SHOW_TEXT);
-          let node;
-          while(node = walker.nextNode()){
-            const frag = document.createDocumentFragment();
-            for(const ch of node.nodeValue){
-              const span = document.createElement("span");
-              span.className = "char-seed";
-              span.textContent = ch;
-              span.dataset.original = ch;
-              frag.appendChild(span);
-            }
-            node.parentNode.replaceChild(frag,node);
-          }
-        }
+  const container = document.getElementById("decode");
+  const slots = [];
 
-        wrapText();
+  phrase.split("").forEach(c => {
+    if (c === " ") {
+      container.appendChild(document.createTextNode(" "));
+      slots.push(null);
+    } else {
+      const s = document.createElement("span");
+      s.className = "slot";
+      s.textContent = "_";
+      container.appendChild(s);
+      slots.push(s);
+    }
+  });
 
-        function buildDecode(){
-          for(const ch of secretPhrase){
-            if(ch===" "){
-              const s=document.createElement("span");
-              s.className="decode-space";
-              decodeLine.appendChild(s);
-            } else {
-              const slot=document.createElement("span");
-              slot.className="decode-slot";
-              slot.textContent="_";
-              decodeLine.appendChild(slot);
-            }
-          }
-        }
+  return slots;
+}
 
-        buildDecode();
+// ----------------------
+// GLITCH
+// ----------------------
+function randomChar() {
+  return glitchChars[Math.floor(Math.random()*glitchChars.length)];
+}
 
-        const slots = document.querySelectorAll(".decode-slot");
-        const chars = document.querySelectorAll(".char-seed");
+function sleep(ms) {
+  return new Promise(r=>setTimeout(r,ms));
+}
 
-        async function reveal(){
-          document.body.classList.add("cursed-state");
-          decodeWrap.classList.add("show");
+async function glitch(span) {
+  for (let i = 0; i < 12; i++) {
+    span.textContent = randomChar();
+    await sleep(180);
+  }
+}
 
-          let slotIndex=0;
+// ----------------------
+// ACTIVATE
+// ----------------------
+async function activate() {
 
-          for(const letter of secretPhrase){
-            if(letter===" "){
-              await sleep(400);
-              continue;
-            }
+  if (understoodClicked) {
+    location.href = "/kafka.html";
+    return;
+  }
 
-            // find next matching character in text
-            let target;
-            for(const c of chars){
-              if(!c.classList.contains("used") && c.textContent.toLowerCase()===letter){
-                target=c;
-                break;
-              }
-            }
+  if (konamiActive) return;
+  konamiActive = true;
 
-            if(!target) continue;
-            target.classList.add("used");
+  document.body.classList.add("cursed");
 
-            // slow glitch phase
-            for(let i=0;i<12;i++){
-              target.textContent = randomChar();
-              await sleep(180);
-            }
+  const matches = findTargets();
+  const spans = applyTargets(matches);
+  const slots = buildDecode();
 
-            target.textContent = target.dataset.original;
-            target.classList.add("target");
+  document.getElementById("decode").classList.add("show");
 
-            // fill decode slot
-            const slot = slots[slotIndex++];
-            if(slot){
-              slot.textContent = letter;
-              slot.classList.add("filled");
-            }
+  let spanIndex = 0;
 
-            await sleep(450);
-          }
-        }
+  for (let i = 0; i < phrase.length; i++) {
 
-        function activate(){
-          if(understoodClicked){
-            window.location.href="/kafka.html";
-            return;
-          }
+    if (phrase[i] === " ") {
+      await sleep(400);
+      continue;
+    }
 
-          if(konamiActive) return;
-          konamiActive=true;
-          reveal();
-        }
+    const span = spans[spanIndex++];
 
-        document.addEventListener("keydown",(e)=>{
-          if(e.key==="."){
-            if(konamiActive){
-              window.location.href="/clue.html";
-            } else {
-              window.location.href="/friends/friends.html";
-            }
-          }
-        });
+    await glitch(span);
 
-        // simple Konami detection
-        const code=["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
-        let index=0;
+    span.classList.add("target");
 
-        document.addEventListener("keydown",(e)=>{
-          if(e.key===code[index]){
-            index++;
-            if(index===code.length){
-              activate();
-              index=0;
-            }
-          } else {
-            index=0;
-          }
-        });
+    const slot = slots[i];
+    if (slot) {
+      slot.textContent = phrase[i];
+      slot.classList.add("filled");
+    }
 
-        document.getElementById("understood-btn").onclick = function(){
-          understoodClicked=true;
-          this.innerText="Great";
-          this.style.opacity="0";
-        };
-      })();
-    </script>
-  </body>
+    await sleep(450);
+  }
+}
+
+})();
+</script>
+
+</body>
 </html>
