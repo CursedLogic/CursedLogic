@@ -28,7 +28,7 @@
         color: #e0e0e0;
         padding: 20px;
         text-align: center;
-        transition: background-color 0.5s ease, color 0.5s ease;
+        transition: background-color 0.45s ease, color 0.45s ease;
       }
 
       .content {
@@ -36,33 +36,34 @@
         width: 90%;
         font-size: 1.2rem;
         line-height: 1.6;
-        transition: opacity 0.4s ease;
       }
 
-      .glitching {
+      .message-area {
+        transition: opacity 0.35s ease;
+      }
+
+      .hidden-seed {
+        transition:
+          color 0.35s ease,
+          text-shadow 0.35s ease,
+          opacity 0.35s ease;
+      }
+
+      .hidden-seed.revealed {
+        color: #ff4d6d;
         text-shadow:
-          0 0 4px rgba(192, 132, 252, 0.20),
-          0 0 10px rgba(192, 132, 252, 0.12);
+          0 0 6px rgba(255, 77, 109, 0.55),
+          0 0 14px rgba(255, 77, 109, 0.25);
       }
 
-      .corrupt-line {
-        display: block;
-        min-height: 1.6em;
-        transition: opacity 0.25s ease, color 0.25s ease;
+      .hidden-seed.space-seed {
+        display: inline-block;
+        width: 0.38em;
       }
 
-      .hidden-message {
-        margin-top: 26px;
+      .cursed-state {
+        background-color: #0a0014;
         color: #c084fc;
-        opacity: 0;
-        white-space: pre-line;
-        line-height: 1.8;
-        letter-spacing: 0.03em;
-        transition: opacity 0.8s ease;
-      }
-
-      .hidden-message.show {
-        opacity: 0.92;
       }
 
       button {
@@ -90,45 +91,45 @@
   </head>
 
   <body>
-    <div class="content" id="content">
-      <p class="corrupt-line"><strong>You asked why I'm quiet.</strong></p>
+    <div class="content">
+      <div class="message-area" id="message-area">
+        <p><strong>You asked why I'm quiet.</strong></p>
 
-      <p class="corrupt-line">
-        I speak when I have something to say. <br />
-        Not before. Not for show.
-      </p>
+        <p>
+          I speak when I have something to say. <br />
+          Not before. Not for show.
+        </p>
 
-      <p class="corrupt-line">
-        I keep to myself. That’s how I work. That’s how I live. <br />
-        It’s not a phase, and it’s not up for review.
-      </p>
+        <p>
+          I keep to myself. That’s how I work. That’s how I live. <br />
+          It’s not a phase, and it’s not up for review.
+        </p>
 
-      <p class="corrupt-line">
-        There’s no performance here. No punchline coming. <br />
-        This isn’t a bit.
-      </p>
+        <p>
+          There’s no performance here. No punchline coming. <br />
+          This isn’t a bit.
+        </p>
 
-      <p class="corrupt-line">
-        I keep my circle small on purpose. <br />
-        But I’m not closed off. <br />
-        If I seem quiet, I’m just waiting to see if it’s worth opening up. <br />
-        For the right people, I’m not quiet at all.
-      </p>
+        <p>
+          I keep my circle small on purpose. <br />
+          But I’m not closed off. <br />
+          If I seem quiet, I’m just waiting to see if it’s worth opening up. <br />
+          For the right people, I’m not quiet at all.
+        </p>
 
-      <p class="corrupt-line">
-        You asked<span
-          id="hidden-dot"
-          onclick="location.href='/friends/friends.html'"
-          style="cursor: pointer; display: inline-block; width: 14px; text-align: center; color: inherit;"
-          >.</span
-        >
-        This is the answer.<br />
-        It doesn’t need more.
-      </p>
+        <p>
+          You asked<span
+            id="hidden-dot"
+            onclick="location.href='/friends/friends.html'"
+            style="cursor: pointer; display: inline-block; width: 14px; text-align: center; color: inherit;"
+            >.</span
+          >
+          This is the answer.<br />
+          It doesn’t need more.
+        </p>
+      </div>
 
       <button id="understood-btn">Understood</button>
-
-      <div class="hidden-message" id="hidden-message"></div>
     </div>
 
     <script>
@@ -149,8 +150,7 @@
           "tap", "tap"
         ];
 
-        const corruptionChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:<>?/\\|~";
-        const finalHiddenText = "You weren't supposed to find this.\n\nAnd yet you kept going.";
+        const hiddenPhrase = "Cursed is watching";
 
         let keyIndex = 0;
         let touchIndex = 0;
@@ -158,15 +158,11 @@
         let startY = 0;
         let konamiActive = false;
         let understoodClicked = false;
-        let corruptionRunning = false;
+        let revealRunning = false;
 
-        const content = document.getElementById("content");
-        const hiddenMessage = document.getElementById("hidden-message");
-        const corruptLines = Array.from(document.querySelectorAll(".corrupt-line"));
         const understoodButton = document.getElementById("understood-btn");
         const hiddenDot = document.getElementById("hidden-dot");
-
-        const originalLineHTML = corruptLines.map(line => line.innerHTML);
+        const messageArea = document.getElementById("message-area");
 
         understoodButton.addEventListener("click", function () {
           understoodClicked = true;
@@ -200,112 +196,150 @@
           window.location.href = "/friends/friends.html";
         }
 
-        function randomChar() {
-          return corruptionChars[Math.floor(Math.random() * corruptionChars.length)];
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        function scrambleTextPreserveBreaks(sourceText, intensity = 0.65) {
-          let output = "";
+        function collectEligibleTextNodes(root) {
+          const walker = document.createTreeWalker(
+            root,
+            NodeFilter.SHOW_TEXT,
+            {
+              acceptNode(node) {
+                if (!node.nodeValue || !node.nodeValue.trim()) {
+                  return NodeFilter.FILTER_REJECT;
+                }
 
-          for (const char of sourceText) {
-            if (char === "\n") {
-              output += "\n";
-            } else if (char === " ") {
-              output += " ";
-            } else if (Math.random() < intensity) {
-              output += randomChar();
-            } else {
-              output += char;
+                const parent = node.parentElement;
+                if (!parent) return NodeFilter.FILTER_REJECT;
+                if (parent.id === "hidden-dot") return NodeFilter.FILTER_REJECT;
+                if (parent.closest("button")) return NodeFilter.FILTER_REJECT;
+
+                return NodeFilter.FILTER_ACCEPT;
+              }
             }
+          );
+
+          const nodes = [];
+          let current;
+          while ((current = walker.nextNode())) {
+            nodes.push(current);
+          }
+          return nodes;
+        }
+
+        function installHiddenPhrase(root, phrase) {
+          const textNodes = collectEligibleTextNodes(root);
+          const targets = [];
+          const visibleChars = [];
+
+          textNodes.forEach(node => {
+            const value = node.nodeValue;
+            for (let i = 0; i < value.length; i++) {
+              const ch = value[i];
+              if (ch !== "\n" && ch !== "\r" && ch !== "\t") {
+                visibleChars.push({ node, index: i, char: ch });
+              }
+            }
+          });
+
+          const needed = phrase.length;
+          const usable = visibleChars.filter(item => item.char !== "");
+          const step = Math.max(2, Math.floor(usable.length / (needed + 3)));
+
+          let cursor = Math.floor(step * 0.8);
+
+          for (let i = 0; i < phrase.length; i++) {
+            const targetChar = phrase[i];
+
+            while (cursor < usable.length && usable[cursor].char === "") {
+              cursor++;
+            }
+
+            if (cursor >= usable.length) break;
+
+            targets.push({
+              node: usable[cursor].node,
+              index: usable[cursor].index,
+              replacement: targetChar
+            });
+
+            cursor += step;
           }
 
-          return output;
+          // Group replacements by node so we can safely rebuild each text node once.
+          const byNode = new Map();
+          targets.forEach(target => {
+            if (!byNode.has(target.node)) byNode.set(target.node, []);
+            byNode.get(target.node).push(target);
+          });
+
+          const seeds = [];
+
+          byNode.forEach((replacements, node) => {
+            replacements.sort((a, b) => a.index - b.index);
+
+            const frag = document.createDocumentFragment();
+            const text = node.nodeValue;
+            let last = 0;
+
+            replacements.forEach(rep => {
+              if (rep.index > last) {
+                frag.appendChild(document.createTextNode(text.slice(last, rep.index)));
+              }
+
+              const span = document.createElement("span");
+              span.className = "hidden-seed";
+              span.dataset.final = rep.replacement === " " ? "&nbsp;" : rep.replacement;
+
+              if (rep.replacement === " ") {
+                span.classList.add("space-seed");
+                span.innerHTML = "&nbsp;";
+              } else {
+                span.textContent = text[rep.index];
+              }
+
+              frag.appendChild(span);
+              seeds.push(span);
+              last = rep.index + 1;
+            });
+
+            if (last < text.length) {
+              frag.appendChild(document.createTextNode(text.slice(last)));
+            }
+
+            node.parentNode.replaceChild(frag, node);
+          });
+
+          return seeds;
         }
 
-        function lineTextFromHTML(html) {
-          return html
-            .replace(/<br\s*\/?>/gi, "\n")
-            .replace(/<[^>]+>/g, "");
-        }
+        const hiddenSeeds = installHiddenPhrase(messageArea, hiddenPhrase);
 
-        async function runCorruptionSequence() {
-          if (corruptionRunning) return;
-          corruptionRunning = true;
+        async function revealHiddenPhrase() {
+          if (revealRunning) return;
+          revealRunning = true;
 
-          bodyShiftToHiddenState();
-          content.classList.add("glitching");
+          document.body.classList.add("cursed-state");
+
           hiddenDot.onclick = handlePeriodRoute;
           hiddenDot.style.color = "#c084fc";
           hiddenDot.style.cursor = "pointer";
 
-          for (let burst = 0; burst < 10; burst++) {
-            corruptLines.forEach((line, index) => {
-              const baseText = lineTextFromHTML(originalLineHTML[index]);
-              const scrambled = scrambleTextPreserveBreaks(baseText, 0.82 - burst * 0.04);
-              line.innerHTML = scrambled.replace(/\n/g, "<br>");
-            });
+          for (let i = 0; i < hiddenSeeds.length; i++) {
+            const seed = hiddenSeeds[i];
 
-            await sleep(70);
-          }
-
-          const replacementLines = [
-            "You asked why I'm quiet.",
-            "Some things stay buried until they are looked for correctly.",
-            "You were not meant to see this version of the page.",
-            "Most people stop at the surface.",
-            "You did not.",
-            "The page remembers."
-          ];
-
-          for (let i = 0; i < corruptLines.length; i++) {
-            const target = replacementLines[i] || "";
-            await revealLine(corruptLines[i], target);
-          }
-
-          hiddenMessage.textContent = "";
-          hiddenMessage.classList.add("show");
-          await typeHiddenMessage(finalHiddenText, hiddenMessage, 34);
-
-          corruptionRunning = false;
-        }
-
-        async function revealLine(element, finalText) {
-          const steps = 9;
-
-          for (let step = 0; step < steps; step++) {
-            let output = "";
-
-            for (let i = 0; i < finalText.length; i++) {
-              if (finalText[i] === " ") {
-                output += " ";
-              } else if (Math.random() < step / steps) {
-                output += finalText[i];
-              } else {
-                output += randomChar();
-              }
+            if (seed.classList.contains("space-seed")) {
+              seed.classList.add("revealed");
+            } else {
+              seed.textContent = seed.dataset.final;
+              seed.classList.add("revealed");
             }
 
-            element.innerHTML = output.replace(/\n/g, "<br>");
-            await sleep(55);
+            await sleep(85);
           }
 
-          element.innerHTML = finalText.replace(/\n/g, "<br>");
-        }
-
-        async function typeHiddenMessage(text, container, speed) {
-          for (let i = 0; i < text.length; i++) {
-            container.textContent += text[i];
-            await sleep(speed);
-          }
-        }
-
-        function bodyShiftToHiddenState() {
-          document.body.style.backgroundColor = "#0a0014";
-          document.body.style.color = "#c084fc";
-        }
-
-        function sleep(ms) {
-          return new Promise(resolve => setTimeout(resolve, ms));
+          revealRunning = false;
         }
 
         document.addEventListener("keydown", (e) => {
@@ -373,10 +407,10 @@
             return;
           }
 
-          if (konamiActive || corruptionRunning) return;
+          if (konamiActive || revealRunning) return;
 
           konamiActive = true;
-          runCorruptionSequence();
+          revealHiddenPhrase();
         }
       })();
     </script>
